@@ -1,381 +1,1350 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Consulta de OC — ElectroPlast</title>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SmartStock CR — Smart Inventory Management (Beta)</title>
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--navy:#0B2545;--steel:#13315C;--cobalt:#1F4E79;--accent:#3E92CC;--slate:#8DA9C4;--ice:#EEF4FA;--mist:#F5F8FC;--border:#B8C6D6;--ok:#00B050;--pending:#C5CDD8;--bg:#fff;--label:#6B7280;--font:'Plus Jakarta Sans',system-ui,sans-serif}
-html{scroll-behavior:smooth}
-body{font-family:var(--font);background:var(--mist);color:var(--navy);min-height:100vh;-webkit-font-smoothing:antialiased}
-.hdr{background:var(--navy);height:60px;position:sticky;top:0;z-index:300;display:flex;align-items:center;padding:0 36px;gap:16px;box-shadow:0 4px 24px rgba(11,37,69,0.25)}
-.hdr-logo{height:44px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.hdr-logo img{height:44px;width:auto;object-fit:contain}
-.hdr h1{font-size:17px;font-weight:600;color:#fff;letter-spacing:-0.02em}
-.hdr-div{width:1px;height:20px;background:rgba(255,255,255,0.12)}
-.hdr-sub{font-size:12px;color:var(--slate)}
-.hdr-pill{margin-left:auto;font-size:11px;font-weight:600;background:rgba(62,146,204,0.18);color:#7EC8F0;padding:3px 12px;border-radius:20px}
-.hdr-btn{font-size:11px;color:var(--slate);margin-left:10px;cursor:pointer;display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:6px;border:1px solid rgba(255,255,255,0.12);transition:background 0.15s;background:none;font-family:var(--font)}
-.hdr-btn:hover{background:rgba(255,255,255,0.08)}
-.hdr-btn svg{width:13px;height:13px;stroke:currentColor;stroke-width:2;fill:none;transition:transform 0.5s}
-.hdr-btn.spin svg{animation:spin 1s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.main{max-width:1120px;margin:0 auto;padding:28px 24px 72px;display:flex;flex-direction:column;gap:16px}
-.banner{background:#F3F4F6;border:1px solid #E5E7EB;border-radius:10px;padding:10px 18px;display:flex;align-items:center;gap:10px;font-size:12px;color:#6B7280}
-.banner .dot{width:7px;height:7px;border-radius:50%;background:var(--ok);flex-shrink:0}
-.banner .dot.local{background:#9CA3AF}
-.banner strong{color:#374151;font-weight:600}
-.card{background:var(--bg);border:1px solid var(--border);border-radius:14px;padding:24px 28px;box-shadow:0 1px 4px rgba(11,37,69,0.04)}
-.card-head{display:flex;align-items:center;justify-content:space-between;padding-bottom:18px;margin-bottom:20px;border-bottom:1px solid #EBF1F8}
-.card-title{font-size:10.5px;font-weight:700;color:var(--slate);letter-spacing:0.09em;text-transform:uppercase}
-.cbadge{font-size:11px;font-weight:600;color:var(--accent);background:var(--ice);padding:3px 12px;border-radius:20px}
-.sel-row{display:grid;grid-template-columns:1fr 1fr;gap:24px}
-.sg{display:flex;flex-direction:column;gap:7px}
-.sg label{font-size:10.5px;font-weight:700;color:var(--slate);letter-spacing:0.08em;text-transform:uppercase}
-.dd{position:relative}
-.ddbtn{width:100%;height:44px;background:var(--mist);border:1.5px solid var(--border);border-radius:9px;padding:0 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-family:var(--font);font-size:14px;font-weight:500;color:var(--navy);transition:border-color 0.15s,box-shadow 0.15s;user-select:none}
-.ddbtn:hover,.ddbtn.open{border-color:var(--accent)}
-.ddbtn.open{box-shadow:0 0 0 3px rgba(62,146,204,0.13)}
-.ddbtn .ph{color:var(--slate);font-weight:400;font-size:13px}
-.chev{width:16px;height:16px;color:var(--slate);transition:transform 0.2s;flex-shrink:0}
-.ddbtn.open .chev{transform:rotate(180deg)}
-.ddpanel{position:absolute;top:calc(100% + 6px);left:0;right:0;background:#fff;border:1px solid var(--border);border-radius:11px;box-shadow:0 12px 40px rgba(11,37,69,0.14);z-index:400;overflow:hidden;display:none}
-.ddpanel.open{display:block;animation:dropIn 0.14s ease-out}
-@keyframes dropIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
-.ddsearch{padding:10px 12px;border-bottom:1px solid #EBF1F8}
-.ddsearch input{width:100%;height:34px;border:1px solid var(--border);border-radius:7px;padding:0 11px;font-family:var(--font);font-size:13px;color:var(--navy);background:var(--mist);outline:none;transition:border-color 0.15s}
-.ddsearch input:focus{border-color:var(--accent)}
-.ddlist{max-height:228px;overflow-y:auto}
-.ddi{padding:9px 15px;font-size:13px;font-weight:500;color:var(--navy);cursor:pointer;transition:background 0.1s;display:flex;align-items:center;gap:8px}
-.ddi:hover{background:var(--mist);color:var(--accent)}
-.ddi.sel{color:var(--accent);background:var(--ice)}
-.ddi.sel::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0}
-.ddempty{padding:20px 15px;font-size:13px;color:var(--slate);text-align:center}
-.dgrid{display:grid;grid-template-columns:1fr 1fr;gap:0}
-.dc{padding:11px 0;border-bottom:1px solid #F0F4F9;display:flex;align-items:baseline;gap:10px}
-.dc:nth-child(odd){padding-right:28px}
-.dc:nth-child(even){padding-left:28px;border-left:1px solid #F0F4F9}
-.dc:nth-last-child(1),.dc:nth-last-child(2){border-bottom:none}
-.dk{font-size:11.5px;color:var(--label);font-weight:500;min-width:130px;flex-shrink:0}
-.dv{font-size:13.5px;font-weight:600;color:var(--navy)}
-.dv.mt{color:var(--slate);font-weight:400}
-.badge{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;padding:3px 10px;border-radius:20px}
-.badge::before{content:'';width:5px;height:5px;border-radius:50%;flex-shrink:0}
-.bg{background:#E8F7EE;color:#166534}.bg::before{background:#16a34a}
-.ba{background:#FFFBEB;color:#92400E}.ba::before{background:#d97706}
-.bb{background:#EFF6FF;color:#1E40AF}.bb::before{background:#3b82f6}
-.bn{background:#F4F5F6;color:#5a6272}.bn::before{background:#9ca3af}
-.br{background:#FEF2F2;color:#991B1B}.br::before{background:#ef4444}
-.tw{overflow-x:auto;border-radius:10px;border:1px solid var(--border)}
+:root{
+  --bg:#F4F7FB;
+  --surface:#FFFFFF;
+  --surface-2:#FAFCFF;
+  --line:#E2E9F3;
+  --line-soft:#EDF2F8;
+  --ink:#16324F;
+  --ink-2:#3F5A78;
+  --muted:#7E93AC;
+  --primary:#2F6FD0;
+  --primary-soft:#E8F0FC;
+  --steel:#4E7FA8;
+  --sky:#8FC3E8;
+  --ok:#2E9E6B;
+  --ok-soft:#E6F5EE;
+  --warn:#C9911F;
+  --warn-soft:#FBF2DF;
+  --bad:#CF5148;
+  --bad-soft:#FBECEB;
+  --pend:#6E7FD8;
+  --pend-soft:#ECEFFC;
+  --shadow:0 1px 2px rgba(22,50,79,.06), 0 8px 24px rgba(22,50,79,.06);
+  --shadow-lg:0 12px 40px rgba(22,50,79,.14);
+  --r:14px;
+  --sidebar:250px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;height:100%}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:"Segoe UI Variable Text","Segoe UI",Inter,-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+  font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;
+}
+button,input,select{font-family:inherit;font-size:inherit;color:inherit}
+button{cursor:pointer;border:none;background:none}
+a{color:inherit}
+::selection{background:#CFE1F8}
+
+/* ---------- layout ---------- */
+.app{display:flex;min-height:100vh}
+.sidebar{
+  width:var(--sidebar);flex:0 0 var(--sidebar);background:var(--surface);
+  border-right:1px solid var(--line);display:flex;flex-direction:column;
+  position:sticky;top:0;height:100vh;transition:width .28s cubic-bezier(.4,0,.2,1),flex-basis .28s cubic-bezier(.4,0,.2,1);
+  z-index:40;
+}
+.app.collapsed{--sidebar:68px}
+.brand{display:flex;align-items:center;gap:11px;padding:18px 18px 16px;border-bottom:1px solid var(--line-soft);min-height:66px}
+.logo{width:34px;height:34px;border-radius:10px;flex:0 0 34px;background:linear-gradient(145deg,#4E9BE0,#2F6FD0);display:grid;place-items:center;box-shadow:0 4px 12px rgba(47,111,208,.28)}
+.logo svg{width:19px;height:19px}
+.brand-txt{overflow:hidden;white-space:nowrap}
+.brand-txt b{display:block;font-size:15px;letter-spacing:-.2px}
+.brand-txt span{display:block;font-size:10.5px;color:var(--muted);letter-spacing:.6px;text-transform:uppercase}
+.app.collapsed .brand-txt,.app.collapsed .nav-label,.app.collapsed .nav-group-title,.app.collapsed .side-foot{opacity:0;pointer-events:none}
+nav{padding:12px 10px;flex:1;overflow-y:auto;overflow-x:hidden}
+.nav-group-title{font-size:10px;letter-spacing:.9px;text-transform:uppercase;color:var(--muted);padding:12px 10px 6px;white-space:nowrap;transition:opacity .2s}
+.nav-item{display:flex;align-items:center;gap:12px;width:100%;padding:9px 10px;border-radius:10px;color:var(--ink-2);white-space:nowrap;transition:background .15s,color .15s;position:relative}
+.nav-item svg{width:18px;height:18px;flex:0 0 18px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;opacity:.85}
+.nav-item:hover{background:var(--surface-2);color:var(--ink)}
+.nav-item.active{background:var(--primary-soft);color:var(--primary);font-weight:600}
+.nav-item.active svg{opacity:1}
+.nav-item .badge{margin-left:auto;background:var(--bad-soft);color:var(--bad);font-size:10.5px;font-weight:700;padding:1px 7px;border-radius:20px}
+.app.collapsed .nav-item .badge{display:none}
+.nav-label{transition:opacity .2s}
+.side-foot{padding:12px;border-top:1px solid var(--line-soft);transition:opacity .2s}
+.env-chip{display:flex;gap:8px;align-items:center;background:var(--surface-2);border:1px dashed var(--line);border-radius:10px;padding:9px 11px;font-size:11.5px;color:var(--muted)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 3px var(--ok-soft);flex:0 0 7px}
+
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.topbar{
+  height:66px;background:rgba(255,255,255,.86);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;
+  padding:0 22px;position:sticky;top:0;z-index:30;
+}
+.icon-btn{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;color:var(--ink-2);transition:background .15s}
+.icon-btn:hover{background:var(--surface-2)}
+.icon-btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.crumb{font-size:12px;color:var(--muted)}
+.crumb b{display:block;font-size:17px;color:var(--ink);font-weight:650;letter-spacing:-.3px;margin-top:-1px}
+.top-search{margin-left:auto;position:relative}
+.top-search input{
+  width:250px;padding:9px 12px 9px 34px;border-radius:10px;border:1px solid var(--line);
+  background:var(--surface-2);outline:none;transition:.18s;
+}
+.top-search input:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-soft);background:#fff;width:290px}
+.top-search svg{position:absolute;left:11px;top:10px;width:15px;height:15px;stroke:var(--muted);fill:none;stroke-width:1.9}
+.avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(145deg,#8FC3E8,#4E7FA8);color:#fff;display:grid;place-items:center;font-size:12px;font-weight:700;letter-spacing:.3px}
+.clock{font-size:11.5px;color:var(--muted);text-align:right;line-height:1.35}
+.clock b{display:block;color:var(--ink-2);font-weight:600;font-variant-numeric:tabular-nums}
+
+.view{padding:22px;max-width:1480px;width:100%;animation:fade .35s ease}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.hidden{display:none!important}
+
+/* ---------- cards ---------- */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+.card-h{display:flex;align-items:center;gap:10px;padding:15px 18px;border-bottom:1px solid var(--line-soft)}
+.card-h h3{margin:0;font-size:14px;font-weight:650;letter-spacing:-.1px}
+.card-h .sub{font-size:11.5px;color:var(--muted);font-weight:400}
+.card-b{padding:18px}
+.grid{display:grid;gap:16px}
+.kpis{grid-template-columns:repeat(6,1fr)}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:15px 16px;box-shadow:var(--shadow);position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s}
+.kpi:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+.kpi::after{content:"";position:absolute;inset:auto 0 0 0;height:3px;background:var(--accent,var(--primary));opacity:.85}
+.kpi .lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;gap:7px}
+.kpi .val{font-size:26px;font-weight:680;letter-spacing:-1px;margin:8px 0 3px;font-variant-numeric:tabular-nums}
+.kpi .delta{font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:5px}
+.kpi .delta em{font-style:normal;font-weight:650}
+.up{color:var(--ok)}.down{color:var(--bad)}
+.mini-ico{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;background:var(--accent-soft,var(--primary-soft))}
+.mini-ico svg{width:13px;height:13px;stroke:var(--accent,var(--primary));fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* ---------- table ---------- */
+.tbl-wrap{overflow-x:auto}
 table{width:100%;border-collapse:collapse;font-size:13px}
-thead th{background:var(--navy);color:rgba(255,255,255,0.8);font-weight:600;font-size:10.5px;letter-spacing:0.07em;text-transform:uppercase;padding:11px 15px;text-align:left;white-space:nowrap}
-thead th:first-child{border-radius:10px 0 0 0}
-thead th:last-child{border-radius:0 10px 0 0}
-tbody tr{border-bottom:1px solid #E8EFF7;transition:background 0.1s}
-tbody tr:last-child{border-bottom:none}
-tbody tr:hover{background:#F6FAFF}
-tbody td{padding:12px 15px;color:var(--navy);vertical-align:middle}
-.tn{font-weight:700;color:var(--slate);font-size:12px}
-.tc{font-family:'SF Mono',Consolas,monospace;font-size:11.5px;color:var(--cobalt);font-weight:600}
-.td{font-weight:500;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.tm{color:var(--slate)}
-.pill{display:inline-block;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px}
-.pg{background:#E8F7EE;color:#166534}.pa{background:#FFFBEB;color:#92400E}
-.pb{background:#EFF6FF;color:#1E40AF}.pn{background:#F4F5F6;color:#5a6272}
-.pr{background:#FEF2F2;color:#991B1B}
-.traz-wrap{overflow-x:auto;padding:6px 0 24px}
-.traz-track{display:flex;align-items:flex-start;min-width:700px}
-.ts{display:flex;flex-direction:column;align-items:center;flex:1;position:relative}
-.ts:not(:last-child)::after{content:'';position:absolute;top:15px;left:50%;width:100%;height:2px;background:var(--pending);z-index:0}
-.ts.lok::after{background:var(--ok)}
-.ts-dot{width:30px;height:30px;border-radius:50%;border:2.5px solid var(--pending);background:#fff;z-index:1;position:relative;display:flex;align-items:center;justify-content:center;transition:border-color 0.4s,background 0.4s}
-.ts.sok .ts-dot{border-color:var(--ok);background:var(--ok)}
-.ts.sok .ts-dot::after{content:'';width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,0.75)}
-@keyframes pring{0%{box-shadow:0 0 0 0 rgba(0,176,80,0.5)}70%{box-shadow:0 0 0 12px rgba(0,176,80,0)}100%{box-shadow:0 0 0 0 rgba(0,176,80,0)}}
-.pulse{animation:pring 0.9s ease-out forwards}
-.ts-lbl{font-size:10px;font-weight:700;color:var(--slate);text-align:center;margin-top:9px;letter-spacing:0.05em;text-transform:uppercase;max-width:68px;line-height:1.35}
-.ts.sok .ts-lbl{color:var(--navy)}
-.ts-dt{font-size:11.5px;font-weight:500;color:var(--navy);text-align:center;margin-top:3px}
-.ts-dt.pend{color:var(--pending)}
-.empty{text-align:center;padding:44px 20px;color:var(--slate)}
-.empty-icon{margin-bottom:14px;opacity:0.35}
-.empty p{font-size:13.5px}
-.filedrop{border:2px dashed var(--border);border-radius:10px;padding:14px;text-align:center;cursor:pointer;transition:border-color 0.15s,background 0.15s;display:flex;align-items:center;justify-content:center;gap:8px}
-.filedrop:hover,.filedrop.over{border-color:var(--accent);background:var(--ice)}
-.filedrop p{font-size:12px;color:var(--slate)}
-.filedrop input{display:none}
-@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-::-webkit-scrollbar{width:5px;height:5px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+th{
+  text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);
+  font-weight:650;padding:11px 14px;border-bottom:1px solid var(--line);white-space:nowrap;background:var(--surface-2);
+  position:sticky;top:0;cursor:pointer;user-select:none;
+}
+th:hover{color:var(--primary)}
+th .arw{opacity:.35;font-size:9px}
+th.sorted .arw{opacity:1;color:var(--primary)}
+td{padding:11px 14px;border-bottom:1px solid var(--line-soft);vertical-align:middle;white-space:nowrap}
+tbody tr{transition:background .13s}
+tbody tr:hover{background:var(--surface-2)}
+tbody tr:last-child td{border-bottom:none}
+.mono{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+.code{font-family:"Cascadia Mono",Consolas,ui-monospace,monospace;font-size:11.5px;color:var(--steel);background:var(--surface-2);border:1px solid var(--line-soft);padding:2px 7px;border-radius:6px}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:640;padding:3px 10px;border-radius:20px;white-space:nowrap}
+.p-ok{background:var(--ok-soft);color:var(--ok)}
+.p-warn{background:var(--warn-soft);color:var(--warn)}
+.p-bad{background:var(--bad-soft);color:var(--bad)}
+.p-pend{background:var(--pend-soft);color:var(--pend)}
+.p-info{background:var(--primary-soft);color:var(--primary)}
+.p-mute{background:#F0F3F8;color:var(--muted)}
+.bar{height:5px;border-radius:4px;background:var(--line-soft);overflow:hidden;min-width:74px}
+.bar i{display:block;height:100%;border-radius:4px;transition:width .8s cubic-bezier(.3,1,.4,1)}
+
+/* ---------- toolbar ---------- */
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.field{position:relative}
+.field svg{position:absolute;left:11px;top:10px;width:15px;height:15px;stroke:var(--muted);fill:none;stroke-width:1.9}
+.field input{padding:9px 12px 9px 33px;border-radius:10px;border:1px solid var(--line);background:var(--surface);outline:none;min-width:290px;transition:.18s;box-shadow:var(--shadow)}
+.field input:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-soft)}
+select{padding:9px 30px 9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface)
+  url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237E93AC' stroke-width='2.4' stroke-linecap='round'><polyline points='6 9 12 15 18 9'/></svg>") no-repeat right 10px center;
+  appearance:none;outline:none;box-shadow:var(--shadow);cursor:pointer;transition:.18s}
+select:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-soft)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:9px 15px;border-radius:10px;font-weight:600;font-size:13px;
+  border:1px solid var(--line);background:var(--surface);color:var(--ink-2);box-shadow:var(--shadow);transition:.16s}
+.btn:hover{border-color:var(--sky);color:var(--primary);transform:translateY(-1px)}
+.btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.btn-primary{background:var(--primary);color:#fff;border-color:var(--primary);box-shadow:0 4px 14px rgba(47,111,208,.28)}
+.btn-primary:hover{background:#2A62BB;color:#fff;border-color:#2A62BB}
+.seg{display:flex;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:3px;box-shadow:var(--shadow)}
+.seg button{padding:6px 13px;border-radius:8px;font-size:12.5px;font-weight:600;color:var(--muted);transition:.15s}
+.seg button.on{background:var(--primary-soft);color:var(--primary)}
+.spacer{margin-left:auto}
+.count{font-size:12px;color:var(--muted)}
+
+/* ---------- product cards ---------- */
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(272px,1fr));gap:14px}
+.pcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);transition:.2s;cursor:pointer}
+.pcard:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);border-color:var(--sky)}
+.pcard h4{margin:9px 0 3px;font-size:13.5px;font-weight:640;letter-spacing:-.1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pcard .meta{font-size:11.5px;color:var(--muted)}
+.pcard .row{display:flex;justify-content:space-between;align-items:center;margin-top:13px;font-size:12px}
+.pcard .qty{font-size:19px;font-weight:680;letter-spacing:-.5px}
+
+/* ---------- charts ---------- */
+.chart{width:100%;display:block;overflow:visible}
+.chart text{font-size:10.5px;fill:var(--muted);font-family:inherit}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--ink-2);margin-top:12px}
+.legend i{width:9px;height:9px;border-radius:3px;display:inline-block;margin-right:7px}
+.donut-center{text-align:center}
+
+/* ---------- timeline ---------- */
+.tl{position:relative;padding-left:22px}
+.tl::before{content:"";position:absolute;left:6px;top:6px;bottom:6px;width:2px;background:var(--line)}
+.tl-i{position:relative;padding:9px 0}
+.tl-i::before{content:"";position:absolute;left:-20px;top:15px;width:9px;height:9px;border-radius:50%;background:#fff;border:2.4px solid var(--accent,var(--primary))}
+.tl-i .t{font-size:12.5px;font-weight:600}
+.tl-i .s{font-size:11.5px;color:var(--muted)}
+
+/* ---------- assistant ---------- */
+.fab{
+  position:fixed;right:26px;bottom:26px;z-index:60;display:flex;align-items:center;gap:10px;
+  padding:13px 20px 13px 16px;border-radius:30px;color:#fff;font-weight:650;font-size:13.5px;
+  background:linear-gradient(135deg,#4E9BE0,#2F6FD0);box-shadow:0 10px 30px rgba(47,111,208,.42);
+  transition:transform .2s,box-shadow .2s;
+}
+.fab:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 16px 40px rgba(47,111,208,.5)}
+.fab .spark{width:22px;height:22px;flex:0 0 22px}
+.fab .spark svg{width:22px;height:22px;fill:#fff;opacity:.95;animation:pulse 3.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:.95}50%{transform:scale(1.14);opacity:.75}}
+.fab .ping{position:absolute;top:9px;right:12px;width:9px;height:9px;border-radius:50%;background:#8CE0B4;box-shadow:0 0 0 0 rgba(140,224,180,.7);animation:ping 2.4s infinite}
+@keyframes ping{0%{box-shadow:0 0 0 0 rgba(140,224,180,.6)}70%{box-shadow:0 0 0 12px rgba(140,224,180,0)}100%{box-shadow:0 0 0 0 rgba(140,224,180,0)}}
+
+.assistant{
+  position:fixed;right:26px;bottom:26px;width:412px;max-width:calc(100vw - 32px);height:min(640px,calc(100vh - 52px));
+  background:var(--surface);border:1px solid var(--line);border-radius:20px;box-shadow:0 24px 70px rgba(22,50,79,.24);
+  z-index:70;display:flex;flex-direction:column;overflow:hidden;transform-origin:bottom right;
+  animation:pop .28s cubic-bezier(.2,1.2,.4,1);
+}
+@keyframes pop{from{opacity:0;transform:translateY(18px) scale(.94)}to{opacity:1;transform:none}}
+.as-h{padding:15px 16px;border-bottom:1px solid var(--line-soft);display:flex;align-items:center;gap:11px;
+  background:linear-gradient(180deg,#F3F8FE,#FFFFFF)}
+.as-h .av{width:34px;height:34px;border-radius:11px;background:linear-gradient(135deg,#4E9BE0,#2F6FD0);display:grid;place-items:center}
+.as-h .av svg{width:17px;height:17px;fill:#fff}
+.as-h b{display:block;font-size:13.5px}
+.as-h span{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.as-body{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;background:var(--surface-2)}
+.msg{max-width:88%;padding:11px 14px;border-radius:14px;font-size:13px;line-height:1.55;animation:fade .3s ease}
+.msg.bot{background:#fff;border:1px solid var(--line);border-bottom-left-radius:5px;box-shadow:var(--shadow);align-self:flex-start}
+.msg.me{background:var(--primary);color:#fff;border-bottom-right-radius:5px;align-self:flex-end;box-shadow:0 4px 14px rgba(47,111,208,.25)}
+.smart-card{background:#fff;border:1px solid var(--line);border-left:3px solid var(--primary);border-radius:11px;padding:11px 13px;margin-top:9px;box-shadow:var(--shadow)}
+.smart-card .sc-t{font-size:12.5px;font-weight:650;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.smart-card .sc-s{font-size:11.5px;color:var(--muted);margin-top:3px}
+.sc-warn{border-left-color:var(--warn)}.sc-bad{border-left-color:var(--bad)}.sc-ok{border-left-color:var(--ok)}
+.chips{display:flex;gap:7px;flex-wrap:wrap;padding:11px 14px;border-top:1px solid var(--line-soft);background:#fff}
+.chip{font-size:11.5px;padding:6px 11px;border-radius:20px;border:1px solid var(--line);color:var(--ink-2);background:var(--surface-2);transition:.15s;white-space:nowrap}
+.chip:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-soft)}
+.as-in{display:flex;gap:9px;padding:12px 14px;border-top:1px solid var(--line-soft);background:#fff}
+.as-in input{flex:1;padding:10px 13px;border-radius:11px;border:1px solid var(--line);background:var(--surface-2);outline:none}
+.as-in input:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-soft);background:#fff}
+.as-in button{width:40px;height:40px;border-radius:11px;background:var(--primary);display:grid;place-items:center;box-shadow:0 4px 12px rgba(47,111,208,.3)}
+.as-in button svg{width:17px;height:17px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.typing{display:flex;gap:4px;padding:13px 15px;align-self:flex-start;background:#fff;border:1px solid var(--line);border-radius:14px;border-bottom-left-radius:5px}
+.typing i{width:6px;height:6px;border-radius:50%;background:var(--sky);animation:blink 1.3s infinite}
+.typing i:nth-child(2){animation-delay:.18s}.typing i:nth-child(3){animation-delay:.36s}
+@keyframes blink{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
+
+/* ---------- toast / misc ---------- */
+.toasts{position:fixed;right:24px;bottom:96px;z-index:80;display:flex;flex-direction:column;gap:10px;align-items:flex-end}
+.toast{background:#fff;border:1px solid var(--line);border-left:3px solid var(--primary);border-radius:11px;padding:11px 15px;
+  box-shadow:var(--shadow-lg);font-size:12.5px;max-width:330px;animation:slidein .3s ease}
+.toast b{display:block;font-size:12.5px}
+.toast span{color:var(--muted);font-size:11.5px}
+@keyframes slidein{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+.empty{text-align:center;padding:46px 20px;color:var(--muted)}
+.empty b{display:block;color:var(--ink-2);font-size:14px;margin-bottom:5px}
+.prog{height:6px;border-radius:5px;background:var(--line-soft);overflow:hidden;margin-top:12px}
+.prog i{display:block;height:100%;background:linear-gradient(90deg,#8FC3E8,#2F6FD0);width:0;transition:width .35s linear}
+.two{display:grid;grid-template-columns:1.62fr 1fr;gap:16px}
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.kv{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px dashed var(--line-soft);font-size:13px}
+.kv:last-child{border:none}
+.kv span{color:var(--muted)}
+.kv b{font-weight:620}
+.switch{width:38px;height:21px;border-radius:20px;background:var(--line);position:relative;transition:.2s;flex:0 0 38px}
+.switch.on{background:var(--primary)}
+.switch::after{content:"";position:absolute;top:2.5px;left:2.5px;width:16px;height:16px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.switch.on::after{left:19.5px}
+.hero-num{font-size:34px;font-weight:690;letter-spacing:-1.4px}
+@media(max-width:1240px){.kpis{grid-template-columns:repeat(3,1fr)}.two,.three{grid-template-columns:1fr}}
+@media(max-width:760px){
+  .sidebar{position:fixed;left:0;transform:translateX(-100%);transition:transform .28s}
+  .app.mobile-open .sidebar{transform:none;box-shadow:var(--shadow-lg)}
+  .kpis{grid-template-columns:repeat(2,1fr)}
+  .top-search{display:none}.view{padding:14px}
+  .assistant{right:8px;bottom:8px;width:calc(100vw - 16px);height:calc(100vh - 16px)}
+  .fab{right:14px;bottom:14px}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+:focus-visible{outline:2px solid var(--primary);outline-offset:2px;border-radius:6px}
 </style>
 </head>
 <body>
-<header class="hdr">
-  <div class="hdr-logo"><img src="data:image/png;base64,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" alt="ElectroPlast"></div>
-  <h1>Consulta de Orden de Compra</h1>
-  <div class="hdr-div"></div>
-  <span class="hdr-sub">Gestión de Compras</span>
-  <button class="hdr-btn" id="syncBtn" onclick="tryFetch()" title="Recargar datos desde GitHub">
-    <svg id="syncIco" viewBox="0 0 24 24"><path d="M1 4v6h6"/><path d="M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
-    Actualizar
-  </button>
-  <span class="hdr-pill">ElectroPlast</span>
-</header>
+<div class="app" id="app">
 
-<main class="main">
-  <div class="banner" id="banner">
-    <div class="dot" id="bdot"></div>
-    <span id="btxt">Cargando datos…</span>
-  </div>
-
-  <div class="card">
-    <div class="sel-row">
-      <div class="sg">
-        <label>Solicitante</label>
-        <div class="dd" id="dd-sol">
-          <div class="ddbtn" id="btn-sol" onclick="toggleDD('sol')">
-            <span id="val-sol">(Todos)</span>
-            <svg class="chev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="4,6 8,10 12,6"/></svg>
-          </div>
-          <div class="ddpanel" id="panel-sol">
-            <div class="ddsearch"><input type="text" placeholder="Buscar…" id="search-sol" oninput="filterDD('sol',this.value)" autocomplete="off"></div>
-            <div class="ddlist" id="list-sol"></div>
-          </div>
-        </div>
-      </div>
-      <div class="sg">
-        <label>Orden de Compra</label>
-        <div class="dd" id="dd-oc">
-          <div class="ddbtn" id="btn-oc" onclick="toggleDD('oc')">
-            <span id="val-oc" class="ph">Seleccione una OC</span>
-            <svg class="chev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="4,6 8,10 12,6"/></svg>
-          </div>
-          <div class="ddpanel" id="panel-oc">
-            <div class="ddsearch"><input type="text" placeholder="Buscar OC…" id="search-oc" oninput="filterDD('oc',this.value)" autocomplete="off"></div>
-            <div class="ddlist" id="list-oc"></div>
-          </div>
-        </div>
-      </div>
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 12l9 4 9-4"/><path d="M3 17l9 4 9-4"/></svg></div>
+      <div class="brand-txt"><b>SmartStock CR</b><span>Beta universitaria</span></div>
     </div>
-  </div>
-
-  <div class="card" id="card-gen">
-    <div class="card-head"><span class="card-title">Datos Generales</span></div>
-    <div id="gen-body"><div class="empty"><div class="empty-icon"><svg width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="8" y="6" width="28" height="34" rx="3"/><line x1="14" y1="15" x2="30" y2="15"/><line x1="14" y1="21" x2="30" y2="21"/><line x1="14" y1="27" x2="22" y2="27"/></svg></div><p>Seleccione una OC para ver los datos generales</p></div></div>
-  </div>
-
-  <div class="card" id="card-lin">
-    <div class="card-head"><span class="card-title">Líneas de la Orden de Compra</span><span class="cbadge" id="badge-lin" style="display:none"></span></div>
-    <div id="lin-body"><div class="empty"><div class="empty-icon"><svg width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="6" y="10" width="32" height="26" rx="3"/><line x1="6" y1="18" x2="38" y2="18"/><line x1="18" y1="18" x2="18" y2="36"/><line x1="28" y1="18" x2="28" y2="36"/></svg></div><p>Seleccione una OC para ver las líneas</p></div></div>
-  </div>
-
-  <div class="card" id="card-traz">
-    <div class="card-head"><span class="card-title">Trazabilidad</span></div>
-    <div id="traz-body"><div class="empty"><div class="empty-icon"><svg width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="22" r="5"/><circle cx="22" cy="22" r="5"/><circle cx="35" cy="22" r="5"/><line x1="14" y1="22" x2="17" y2="22"/><line x1="27" y1="22" x2="30" y2="22"/></svg></div><p>Seleccione una OC para ver la trazabilidad</p></div></div>
-  </div>
-
-  <div style="padding:4px 0 8px">
-    <p style="font-size:11px;color:var(--slate);margin-bottom:8px;text-align:center;letter-spacing:0.02em">Actualizar datos · Arrastra el archivo <strong style="color:var(--navy)">oc-data.json</strong> aquí o haz clic para seleccionarlo</p>
-    <div class="filedrop" id="filedrop" onclick="document.getElementById('fi').click()" ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')" ondrop="handleDrop(event)">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:6px;color:var(--slate)"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-      <p>oc-data.json</p>
-      <input type="file" id="fi" accept=".json" onchange="handleFile(this.files[0])">
+    <nav id="nav"></nav>
+    <div class="side-foot">
+      <div class="env-chip"><span class="dot"></span><div>Entorno demostrativo<br>Datos simulados v0.9.4</div></div>
     </div>
+  </aside>
+
+  <!-- ================= MAIN ================= -->
+  <div class="main">
+    <header class="topbar">
+      <button class="icon-btn" id="toggleNav" title="Contraer menú" aria-label="Contraer menú">
+        <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="16" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div class="crumb"><span id="crumbTop">Plásticos del Valle S.A.</span><b id="crumbTitle">Dashboard</b></div>
+      <div class="top-search">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.7" y2="16.7"/></svg>
+        <input id="globalSearch" placeholder="Buscar producto, orden o proveedor…">
+      </div>
+      <div class="clock"><span>San José, Costa Rica</span><b id="clock">--:--:--</b></div>
+      <button class="icon-btn" id="bellBtn" title="Notificaciones">
+        <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+      </button>
+      <div class="avatar" title="María Fernanda Rojas — Jefa de Bodega">MR</div>
+    </header>
+
+    <main id="views">
+      <!-- views injected -->
+    </main>
   </div>
-</main>
+</div>
+
+<!-- ================= ASSISTANT ================= -->
+<button class="fab" id="fab">
+  <span class="spark"><svg viewBox="0 0 24 24"><path d="M12 2l1.9 5.6L19.5 9.5 13.9 11.4 12 17l-1.9-5.6L4.5 9.5l5.6-1.9L12 2z"/><path d="M18.5 14l.9 2.6 2.6.9-2.6.9-.9 2.6-.9-2.6-2.6-.9 2.6-.9.9-2.6z" opacity=".7"/></svg></span>
+  IASHA<span class="ping"></span>
+</button>
+
+<div class="toasts" id="toasts"></div>
 
 <script>
-const SHAREPOINT_URL='https://jleonm506-create.github.io/consulta-oc_R/oc-data.json';
-const F={id:'ID Linea OC',oc:'OC',fecha_oc:'Fecha_OC',codigo:'Código',desc:'Descripción',estatus:'Estatus',estatus_oc:'Estatus OC',tipo_po:'Tipo de PO',servicio:'Servicio/proyecto',sistema:'Estatus sistema',proveedor:'Proveedor',traz:'Trazabilidad',comentario:'Comentario General',f_req:'Fecha requerida al prov',f_envio:'Fecha de envío PO a Prov',procedencia:'Procedencia',parcial:'Parcial',f_po_lista:'Fecha PO lista (Proveedor)',f_eta:'Fecha ETA (Movible) ',just_eta:'Justificación cambio ETA',f_recolec:'Fecha confirm_x002e_ recolecta ',f_arribo:'Fecha arribo EP',carpeta:'Carpeta BI completa ',f_carpeta:'Fecha carpeta completa',seguimiento:'Seguimiento y desempeño',f_eval:'Fecha de evaluación ',po_qty:'PO Qty Completa ',comprador:'Comprador',solicitante:'Solicitante_Final'};
-const EMBEDDED=[{"ID Linea OC":"83","OC":"7","Fecha_OC":"46050","Código":"PS 1540","Descripción":"Servicio de desalmacenaje tarjeta electronica EMAX","Estatus":"N/A","Estatus OC":"Aprobado","Tipo de PO":"Materia Prima","Servicio/proyecto":"","Estatus sistema":"","Proveedor":"CONFECCIONES INDUSTRIALES","Trazabilidad":"NO APLICA","Comentario General":"","Fecha requerida al prov":"45548","Fecha de envío PO a Prov":"","Procedencia":"","Parcial":"","Fecha PO lista (Proveedor)":"","Fecha ETA (Movible) ":"","Justificación cambio ETA":"","Fecha confirm_x002e_ recolecta ":"","Fecha arribo EP":"","Carpeta BI completa ":"","Fecha carpeta completa":"","Seguimiento y desempeño":"","Fecha de evaluación ":"","PO Qty Completa ":"","Comprador":"Mauricio R. Carvajal Ramos","Solicitante_Final":"Diego Vicente Ramirez"},{"ID Linea OC":"12923","OC":"7","Fecha_OC":"46050","Código":"RE-21467","Descripción":"grasa","Estatus":"N/A","Estatus OC":"Aprobado","Tipo de PO":"Repuestos y Suministros","Servicio/proyecto":"","Estatus sistema":"","Proveedor":"CONFECCIONES INDUSTRIALES","Trazabilidad":"","Comentario General":"OC vieja a eliminar","Fecha requerida al prov":"44285","Fecha de envío PO a Prov":"","Procedencia":"","Parcial":"","Fecha PO lista (Proveedor)":"","Fecha ETA (Movible) ":"","Justificación cambio ETA":"","Fecha confirm_x002e_ recolecta ":"","Fecha arribo EP":"44285","Carpeta BI completa ":"","Fecha carpeta completa":"","Seguimiento y desempeño":"","Fecha de evaluación ":"","PO Qty Completa ":"","Comprador":"Mauricio R. Carvajal Ramos","Solicitante_Final":"Diego Vicente Ramirez"},{"ID Linea OC":"12924","OC":"7","Fecha_OC":"46050","Código":"RE-2263","Descripción":"graza","Estatus":"N/A","Estatus OC":"Aprobado","Tipo de PO":"Repuestos y Suministros","Servicio/proyecto":"","Estatus sistema":"","Proveedor":"CONFECCIONES INDUSTRIALES","Trazabilidad":"","Comentario General":"OC vieja a eliminar","Fecha requerida al prov":"44285","Fecha de envío PO a Prov":"","Procedencia":"","Parcial":"","Fecha PO lista (Proveedor)":"","Fecha ETA (Movible) ":"","Justificación cambio ETA":"","Fecha confirm_x002e_ recolecta ":"","Fecha arribo EP":"44285","Carpeta BI completa ":"","Fecha carpeta completa":"","Seguimiento y desempeño":"","Fecha de evaluación ":"","PO Qty Completa ":"","Comprador":"Mauricio R. Carvajal Ramos","Solicitante_Final":"Diego Vicente Ramirez"},{"ID Linea OC":"41604","OC":"20470","Fecha_OC":"46030","Código":"RE-20296","Descripción":"BALANZA ELECTONICA TIPO CONTADORA HIWEIGH","Estatus":"N/A","Estatus OC":"Aprobado","Tipo de PO":"Repuestos y Suministros","Servicio/proyecto":"","Estatus sistema":"","Proveedor":"ROMANAS AZOCAR","Trazabilidad":"","Comentario General":"OC en espera debido al proyecto de etapa C","Fecha requerida al prov":"46008","Fecha de envío PO a Prov":"","Procedencia":"","Parcial":"","Fecha PO lista (Proveedor)":"","Fecha ETA (Movible) ":"","Justificación cambio ETA":"","Fecha confirm_x002e_ recolecta ":"","Fecha arribo EP":"46044","Carpeta BI completa ":"","Fecha carpeta completa":"","Seguimiento y desempeño":"","Fecha de evaluación ":"","PO Qty Completa ":"","Comprador":"Alexander León Madrigal","Solicitante_Final":"Evelyn Cordero Salazar"},{"ID Linea OC":"43140","OC":"22714","Fecha_OC":"46027","Código":"SERV1","Descripción":"OC EN BASE A cotización: 2025-042E","Estatus":"Completada","Estatus OC":"Aprobado","Tipo de PO":"Servicios / Proyectos","Servicio/proyecto":"Proyecto","Estatus sistema":"","Proveedor":"INCONTROL-Sistemas de Control y Ahorro Energético","Trazabilidad":"","Comentario General":"","Fecha requerida al prov":"46034","Fecha de envío PO a Prov":"","Procedencia":"","Parcial":"","Fecha PO lista (Proveedor)":"","Fecha ETA (Movible) ":"","Justificación cambio ETA":"","Fecha confirm_x002e_ recolecta ":"","Fecha arribo EP":"","Carpeta BI completa ":"","Fecha carpeta completa":"","Seguimiento y desempeño":"","Fecha de evaluación ":"","PO Qty Completa ":"","Comprador":"Mauricio R. Carvajal Ramos","Solicitante_Final":"Diego Vicente Ramírez"},{"ID Linea OC":"43141","OC":"22715","Fecha_OC":"46027","Código":"SU-25723","Descripción":"CAJA ORGANIZADORA 10L TRANSPARENTE","Estatus":"N/A","Estatus OC":"Aprobado","Tipo de PO":"Repuestos y Suministros","Servicio/proyecto":"","Estatus sistema":"","Proveedor":"Almacenes El Rey Limitada","Trazabilidad":"NO APLICA","Comentario General":"OC duplicada","Fecha requerida al prov":"46034","Fecha de envío PO a Prov":"","Procedencia":"","Parcial":"","Fecha PO lista (Proveedor)":"","Fecha ETA (Movible) ":"","Justificación cambio ETA":"","Fecha confirm_x002e_ recolecta ":"","Fecha arribo EP":"","Carpeta BI completa ":"","Fecha carpeta completa":"","Seguimiento y desempeño":"","Fecha de evaluación ":"","PO Qty Completa ":"","Comprador":"Manuel Montero Patiño","Solicitante_Final":"Héctor Montalvan Vallecillo"},{"ID Linea OC":"43142","OC":"22717","Fecha_OC":"46027","Código":"RE-264572","Descripción":"H.G. LISO #28 1.20X2.44M","Estatus":"Completada","Estatus OC":"Aprobado","Tipo de PO":"Repuestos y Suministros","Servicio/proyecto":"","Estatus sistema":"Pendiente","Proveedor":"CORPORACION COMERCIAL EL LAGAR S.A","Trazabilidad":"Arribada","Comentario General":"Cotejar con suministros el ingreso y la salida de esta orden","Fecha requerida al prov":"46034","Fecha de envío PO a Prov":"","Procedencia":"","Parcial":"","Fecha PO lista (Proveedor)":"","Fecha ETA (Movible) ":"","Justificación cambio ETA":"","Fecha confirm_x002e_ recolecta ":"","Fecha arribo EP":"","Carpeta BI completa ":"","Fecha carpeta completa":"","Seguimiento y desempeño":"","Fecha de evaluación ":"","PO Qty Completa ":"","Comprador":"Manuel Montero Patiño","Solicitante_Final":"Kendall Jesús Jiménez Bermúdez"},{"ID Linea OC":"43143","OC":"22726","Fecha_OC":"46027","Código":"SERV1","Descripción":"DELL Pro 16 PC16250 Intel Core Ultra 7 255U Ram 64GB","Estatus":"Completada","Estatus OC":"Aprobado","Tipo de PO":"Servicios / Proyectos","Servicio/proyecto":"Servicio","Estatus sistema":"Recibido","Proveedor":"P.R. Actualidad Tecnica","Trazabilidad":"Servicio completado","Comentario General":"Completadas por Esteban Monge","Fecha requerida al prov":"","Fecha de envío PO a Prov":"","Procedencia":"","Parcial":"","Fecha PO lista (Proveedor)":"","Fecha ETA (Movible) ":"","Justificación cambio ETA":"","Fecha confirm_x002e_ recolecta ":"","Fecha arribo EP":"","Carpeta BI completa ":"","Fecha carpeta completa":"","Seguimiento y desempeño":"","Fecha de evaluación ":"","PO Qty Completa ":"","Comprador":"Esteban Monge Jiménez","Solicitante_Final":"Marco Tulio Herrera Vargas"},{"ID Linea OC":"43144","OC":"22726","Fecha_OC":"46027","Código":"SERV2","Descripción":"Dell - Docking station adapter - Pro Thunderbolt 4","Estatus":"Completada","Estatus OC":"Aprobado","Tipo de PO":"Servicios / Proyectos","Servicio/proyecto":"Servicio","Estatus sistema":"Recibido","Proveedor":"P.R. Actualidad Tecnica","Trazabilidad":"Servicio completado","Comentario General":"Completadas por Esteban Monge","Fecha requerida al prov":"","Fecha de envío PO a Prov":"","Procedencia":"","Parcial":"","Fecha PO lista (Proveedor)":"","Fecha ETA (Movible) ":"","Justificación cambio ETA":"","Fecha confirm_x002e_ recolecta ":"","Fecha arribo EP":"","Carpeta BI completa ":"","Fecha carpeta completa":"","Seguimiento y desempeño":"","Fecha de evaluación ":"","PO Qty Completa ":"","Comprador":"Esteban Monge Jiménez","Solicitante_Final":"Marco Tulio Herrera Vargas"},{"ID Linea OC":"43147","OC":"22728","Fecha_OC":"46027","Código":"RE-20163","Descripción":"KIT REPARACIÓN DE CILINDROS DSBC/G-50-753090","Estatus":"Completada","Estatus OC":"Aprobado","Tipo de PO":"Repuestos y Suministros","Servicio/proyecto":"","Estatus sistema":"Recibido","Proveedor":"Amazon","Trazabilidad":"Arribada","Comentario General":"Completadas por Esteban Monge","Fecha requerida al prov":"46059","Fecha de envío PO a Prov":"","Procedencia":"Internacional","Parcial":"","Fecha PO lista (Proveedor)":"","Fecha ETA (Movible) ":"","Justificación cambio ETA":"","Fecha confirm_x002e_ recolecta ":"","Fecha arribo EP":"46073","Carpeta BI completa ":"","Fecha carpeta completa":"","Seguimiento y desempeño":"","Fecha de evaluación ":"","PO Qty Completa ":"","Comprador":"Manuel Montero Patiño","Solicitante_Final":"Manuel Montero Patiño"},{"ID Linea OC":"43150","OC":"22731","Fecha_OC":"46027","Código":"SERV1","Descripción":"HP ProBook 460 Intel Core Ultra 7 155U Ram 32GB HD 512GB","Estatus":"Completada","Estatus OC":"Aprobado","Tipo de PO":"Servicios / Proyectos","Servicio/proyecto":"Servicio","Estatus sistema":"Pendiente","Proveedor":"P.R. Actualidad Tecnica","Trazabilidad":"Servicio completado","Comentario General":"Completadas por Esteban Monge","Fecha requerida al prov":"","Fecha de envío PO a Prov":"","Procedencia":"Nacional","Parcial":"","Fecha PO lista (Proveedor)":"","Fecha ETA (Movible) ":"","Justificación cambio ETA":"","Fecha confirm_x002e_ recolecta ":"","Fecha arribo EP":"","Carpeta BI completa ":"","Fecha carpeta completa":"","Seguimiento y desempeño":"","Fecha de evaluación ":"","PO Qty Completa ":"","Comprador":"Esteban Monge Jiménez","Solicitante_Final":"Christian Vega Ramírez"},{"ID Linea OC":"43151","OC":"22729","Fecha_OC":"46027","Código":"SU-0015","Descripción":"Bolsa plástica negra mediana para basura 48 pq","Estatus":"Completada","Estatus OC":"Aprobado","Tipo de PO":"Repuestos y Suministros","Servicio/proyecto":"","Estatus sistema":"Pendiente","Proveedor":"ISAURA VALERIA FALLAS ROMERO","Trazabilidad":"Arribada","Comentario General":"Cotejar con suministros","Fecha requerida al prov":"46034","Fecha de envío PO a Prov":"","Procedencia":"Nacional","Parcial":"","Fecha PO lista (Proveedor)":"","Fecha ETA (Movible) ":"","Justificación cambio ETA":"","Fecha confirm_x002e_ recolecta ":"","Fecha arribo EP":"46030","Carpeta BI completa ":"","Fecha carpeta completa":"","Seguimiento y desempeño":"","Fecha de evaluación ":"","PO Qty Completa ":"","Comprador":"Alexander León Madrigal","Solicitante_Final":"Alexander León Madrigal"},{"ID Linea OC":"43152","OC":"22729","Fecha_OC":"46027","Código":"RE-0024","Descripción":"Algodón 100% torunda 1,1 gr","Estatus":"Completada","Estatus OC":"Aprobado","Tipo de PO":"Repuestos y Suministros","Servicio/proyecto":"","Estatus sistema":"Pendiente","Proveedor":"ISAURA VALERIA FALLAS ROMERO","Trazabilidad":"Arribada","Comentario General":"Cotejar con suministros","Fecha requerida al prov":"46034","Fecha de envío PO a Prov":"","Procedencia":"Nacional","Parcial":"","Fecha PO lista (Proveedor)":"","Fecha ETA (Movible) ":"","Justificación cambio ETA":"","Fecha confirm_x002e_ recolecta ":"","Fecha arribo EP":"46030","Carpeta BI completa ":"","Fecha carpeta completa":"","Seguimiento y desempeño":"","Fecha de evaluación ":"","PO Qty Completa ":"","Comprador":"Alexander León Madrigal","Solicitante_Final":"Alexander León Madrigal"},{"ID Linea OC":"43202","OC":"22752","Fecha_OC":"46029","Código":"SERV1","Descripción":"Hot runner tip gate (1x)(Moldmasters/Husky) 300x370x520mm","Estatus":"En proceso","Estatus OC":"Aprobado","Tipo de PO":"Servicios / Proyectos","Servicio/proyecto":"Servicio","Estatus sistema":"Pendiente","Proveedor":"JT MOLD TECHNOLOGY CO, LTD","Trazabilidad":"En producción","Comentario General":"","Fecha requerida al prov":"46097","Fecha de envío PO a Prov":"","Procedencia":"","Parcial":"","Fecha PO lista (Proveedor)":"","Fecha ETA (Movible) ":"","Justificación cambio ETA":"","Fecha confirm_x002e_ recolecta ":"","Fecha arribo EP":"","Carpeta BI completa ":"","Fecha carpeta completa":"","Seguimiento y desempeño":"","Fecha de evaluación ":"","PO Qty Completa ":"","Comprador":"Manuel Montero Patiño","Solicitante_Final":"Samantha Pina Castillo"},{"ID Linea OC":"43203","OC":"22752","Fecha_OC":"46029","Código":"SERV2","Descripción":"cav/core spares","Estatus":"En proceso","Estatus OC":"Aprobado","Tipo de PO":"Servicios / Proyectos","Servicio/proyecto":"Servicio","Estatus sistema":"Pendiente","Proveedor":"JT MOLD TECHNOLOGY CO, LTD","Trazabilidad":"En producción","Comentario General":"","Fecha requerida al prov":"46038","Fecha de envío PO a Prov":"","Procedencia":"","Parcial":"","Fecha PO lista (Proveedor)":"","Fecha ETA (Movible) ":"","Justificación cambio ETA":"","Fecha confirm_x002e_ recolecta ":"","Fecha arribo EP":"","Carpeta BI completa ":"","Fecha carpeta completa":"","Seguimiento y desempeño":"","Fecha de evaluación ":"","PO Qty Completa ":"","Comprador":"Manuel Montero Patiño","Solicitante_Final":"Samantha Pina Castillo"},{"ID Linea OC":"43209","OC":"22756","Fecha_OC":"46029","Código":"Pump Silicone Tube","Descripción":"Pump Silicone Tube","Estatus":"N/A","Estatus OC":"Aprobado","Tipo de PO":"Materia Prima","Servicio/proyecto":"","Estatus sistema":"Pendiente","Proveedor":"Cirtec Medical Corp.","Trazabilidad":"NO APLICA","Comentario General":"","Fecha requerida al prov":"46104","Fecha de envío PO a Prov":"","Procedencia":"","Parcial":"","Fecha PO lista (Proveedor)":"","Fecha ETA (Movible) ":"","Justificación cambio ETA":"","Fecha confirm_x002e_ recolecta ":"","Fecha arribo EP":"","Carpeta BI completa ":"","Fecha carpeta completa":"","Seguimiento y desempeño":"","Fecha de evaluación ":"","PO Qty Completa ":"","Comprador":"Luz Esmeralda Suárez Ramírez","Solicitante_Final":"Luz Esmeralda Suárez Ramírez"},{"ID Linea OC":"43212","OC":"22759","Fecha_OC":"46029","Código":"Polypropileno 20C65NA","Descripción":"Resina Polipropileno Copolimero De Impacto Mi 20","Estatus":"N/A","Estatus OC":"Aprobado","Tipo de PO":"Materia Prima","Servicio/proyecto":"","Estatus sistema":"Pendiente","Proveedor":"Coansa Snetor","Trazabilidad":"NO APLICA","Comentario General":"","Fecha requerida al prov":"46037","Fecha de envío PO a Prov":"","Procedencia":"","Parcial":"","Fecha PO lista (Proveedor)":"","Fecha ETA (Movible) ":"","Justificación cambio ETA":"","Fecha confirm_x002e_ recolecta ":"","Fecha arribo EP":"","Carpeta BI completa ":"","Fecha carpeta completa":"","Seguimiento y desempeño":"","Fecha de evaluación ":"","PO Qty Completa ":"","Comprador":"Luz Esmeralda Suárez Ramírez","Solicitante_Final":"Luz Esmeralda Suárez Ramírez"},{"ID Linea OC":"43213","OC":"22759","Fecha_OC":"46029","Código":"T60-800-119","Descripción":"HDPE T60-800-119","Estatus":"N/A","Estatus OC":"Aprobado","Tipo de PO":"Materia Prima","Servicio/proyecto":"","Estatus sistema":"Pendiente","Proveedor":"Coansa Snetor","Trazabilidad":"NO APLICA","Comentario General":"","Fecha requerida al prov":"46037","Fecha de envío PO a Prov":"","Procedencia":"","Parcial":"","Fecha PO lista (Proveedor)":"","Fecha ETA (Movible) ":"","Justificación cambio ETA":"","Fecha confirm_x002e_ recolecta ":"","Fecha arribo EP":"","Carpeta BI completa ":"","Fecha carpeta completa":"","Seguimiento y desempeño":"","Fecha de evaluación ":"","PO Qty Completa ":"","Comprador":"Luz Esmeralda Suárez Ramírez","Solicitante_Final":"Luz Esmeralda Suárez Ramírez"},{"ID Linea OC":"43214","OC":"22760","Fecha_OC":"46029","Código":"CAJ-01","Descripción":"CAJA EP 1 (RAWLING)","Estatus":"N/A","Estatus OC":"Aprobado","Tipo de PO":"Material de Empaque","Servicio/proyecto":"","Estatus sistema":"Pendiente","Proveedor":"CORRUGADOS SAN BOSCO","Trazabilidad":"NO APLICA","Comentario General":"","Fecha requerida al prov":"46111","Fecha de envío PO a Prov":"","Procedencia":"","Parcial":"","Fecha PO lista (Proveedor)":"","Fecha ETA (Movible) ":"","Justificación cambio ETA":"","Fecha confirm_x002e_ recolecta ":"","Fecha arribo EP":"","Carpeta BI completa ":"","Fecha carpeta completa":"","Seguimiento y desempeño":"","Fecha de evaluación ":"","PO Qty Completa ":"","Comprador":"Luz Esmeralda Suárez Ramírez","Solicitante_Final":"Luz Esmeralda Suárez Ramírez"},{"ID Linea OC":"43215","OC":"22763","Fecha_OC":"46029","Código":"Tritan MX711","Descripción":"Tritan MX711","Estatus":"N/A","Estatus OC":"Aprobado","Tipo de PO":"Materia Prima","Servicio/proyecto":"","Estatus sistema":"Pendiente","Proveedor":"EASTMAN CHEMICAL LTD","Trazabilidad":"NO APLICA","Comentario General":"","Fecha requerida al prov":"46125","Fecha de envío PO a Prov":"","Procedencia":"","Parcial":"","Fecha PO lista (Proveedor)":"","Fecha ETA (Movible) ":"","Justificación cambio ETA":"","Fecha confirm_x002e_ recolecta ":"","Fecha arribo EP":"","Carpeta BI completa ":"","Fecha carpeta completa":"","Seguimiento y desempeño":"","Fecha de evaluación ":"","PO Qty Completa ":"","Comprador":"Luz Esmeralda Suárez Ramírez","Solicitante_Final":"Luz Esmeralda Suárez Ramírez"},{"ID Linea OC":"43221","OC":"22765","Fecha_OC":"46030","Código":"SERV1","Descripción":"SILLA BANCO CAJERO POLIURETANO NEGRO","Estatus":"N/A","Estatus OC":"Rechazado","Tipo de PO":"Servicios / Proyectos","Servicio/proyecto":"Proyecto","Estatus sistema":"Recibido","Proveedor":"CMSOLUCIONES S.A","Trazabilidad":"NO APLICA","Comentario General":"rechazada","Fecha requerida al prov":"46037","Fecha de envío PO a Prov":"","Procedencia":"","Parcial":"","Fecha PO lista (Proveedor)":"","Fecha ETA (Movible) ":"","Justificación cambio ETA":"","Fecha confirm_x002e_ recolecta ":"","Fecha arribo EP":"","Carpeta BI completa ":"","Fecha carpeta completa":"","Seguimiento y desempeño":"","Fecha de evaluación ":"","PO Qty Completa ":"","Comprador":"Alexander León Madrigal","Solicitante_Final":"Evelyn Cordero Salazar"},{"ID Linea OC":"43245","OC":"22772","Fecha_OC":"46030","Código":"CALIBRE MEGARAD 2081-15","Descripción":"CALIBRE MEGARAD 2081-15 SC03010","Estatus":"N/A","Estatus OC":"Aprobado","Tipo de PO":"Materia Prima","Servicio/proyecto":"","Estatus sistema":"Pendiente","Proveedor":"FORMERRA LLC","Trazabilidad":"NO APLICA","Comentario General":"","Fecha requerida al prov":"46041","Fecha de envío PO a Prov":"","Procedencia":"","Parcial":"","Fecha PO lista (Proveedor)":"","Fecha ETA (Movible) ":"","Justificación cambio ETA":"","Fecha confirm_x002e_ recolecta ":"","Fecha arribo EP":"","Carpeta BI completa ":"","Fecha carpeta completa":"","Seguimiento y desempeño":"","Fecha de evaluación ":"","PO Qty Completa ":"","Comprador":"Luz Esmeralda Suárez Ramírez","Solicitante_Final":"Luz Esmeralda Suárez Ramírez"},{"ID Linea OC":"43280","OC":"22783","Fecha_OC":"46034","Código":"RE-264596","Descripción":"ACEITE COMPRESOR 1/8 GL ST-1253 CAMPBELL","Estatus":"Completada","Estatus OC":"Aprobado","Tipo de PO":"Repuestos y Suministros","Servicio/proyecto":"","Estatus sistema":"Recibido","Proveedor":"CORPORACION COMERCIAL EL LAGAR S.A","Trazabilidad":"Arribada","Comentario General":"","Fecha requerida al prov":"46044","Fecha de envío PO a Prov":"","Procedencia":"Nacional","Parcial":"","Fecha PO lista (Proveedor)":"","Fecha ETA (Movible) ":"","Justificación cambio ETA":"","Fecha confirm_x002e_ recolecta ":"","Fecha arribo EP":"46023","Carpeta BI completa ":"","Fecha carpeta completa":"","Seguimiento y desempeño":"","Fecha de evaluación ":"","PO Qty Completa ":"","Comprador":"Mauricio R. Carvajal Ramos","Solicitante_Final":"Christian Vega Ramírez"},{"ID Linea OC":"43303","OC":"22794","Fecha_OC":"46034","Código":"SERV1","Descripción":"Servicio de alquiler del apilador - Horas extras Diciembre","Estatus":"En proceso","Estatus OC":"Aprobado","Tipo de PO":"Servicios / Proyectos","Servicio/proyecto":"Servicio","Estatus sistema":"Pendiente","Proveedor":"Dequipos S.R.L","Trazabilidad":"Arribada","Comentario General":"","Fecha requerida al prov":"46034","Fecha de envío PO a Prov":"","Procedencia":"Nacional","Parcial":"","Fecha PO lista (Proveedor)":"","Fecha ETA (Movible) ":"","Justificación cambio ETA":"","Fecha confirm_x002e_ recolecta ":"","Fecha arribo EP":"","Carpeta BI completa ":"","Fecha carpeta completa":"","Seguimiento y desempeño":"","Fecha de evaluación ":"","PO Qty Completa ":"","Comprador":"Luz Esmeralda Suárez Ramírez","Solicitante_Final":"José Francisco Solera Castillo"},{"ID Linea OC":"43329","OC":"22801","Fecha_OC":"46030","Código":"SERV1","Descripción":"Subscription M365","Estatus":"Completada","Estatus OC":"Aprobado","Tipo de PO":"Servicios / Proyectos","Servicio/proyecto":"Servicio","Estatus sistema":"Pendiente","Proveedor":"MICROSOFT CORPORATION","Trazabilidad":"Arribada","Comentario General":"","Fecha requerida al prov":"","Fecha de envío PO a Prov":"","Procedencia":"","Parcial":"","Fecha PO lista (Proveedor)":"","Fecha ETA (Movible) ":"","Justificación cambio ETA":"","Fecha confirm_x002e_ recolecta ":"","Fecha arribo EP":"","Carpeta BI completa ":"","Fecha carpeta completa":"","Seguimiento y desempeño":"","Fecha de evaluación ":"","PO Qty Completa ":"","Comprador":"Esteban Monge Jiménez","Solicitante_Final":"Marco Tulio Herrera Vargas"},{"ID Linea OC":"43330","OC":"22801","Fecha_OC":"46030","Código":"SERV2","Descripción":"Subscription M365","Estatus":"Completada","Estatus OC":"Aprobado","Tipo de PO":"Servicios / Proyectos","Servicio/proyecto":"Servicio","Estatus sistema":"Pendiente","Proveedor":"MICROSOFT CORPORATION","Trazabilidad":"Arribada","Comentario General":"","Fecha requerida al prov":"","Fecha de envío PO a Prov":"","Procedencia":"","Parcial":"","Fecha PO lista (Proveedor)":"","Fecha ETA (Movible) ":"","Justificación cambio ETA":"","Fecha confirm_x002e_ recolecta ":"","Fecha arribo EP":"","Carpeta BI completa ":"","Fecha carpeta completa":"","Seguimiento y desempeño":"","Fecha de evaluación ":"","PO Qty Completa ":"","Comprador":"Esteban Monge Jiménez","Solicitante_Final":"Marco Tulio Herrera Vargas"},{"ID Linea OC":"43331","OC":"22801","Fecha_OC":"46030","Código":"SERV3","Descripción":"Subscription M365","Estatus":"Completada","Estatus OC":"Aprobado","Tipo de PO":"Servicios / Proyectos","Servicio/proyecto":"Servicio","Estatus sistema":"Pendiente","Proveedor":"MICROSOFT CORPORATION","Trazabilidad":"Arribada","Comentario General":"Completadas por Esteban Monge","Fecha requerida al prov":"","Fecha de envío PO a Prov":"","Procedencia":"Nacional","Parcial":"","Fecha PO lista (Proveedor)":"","Fecha ETA (Movible) ":"","Justificación cambio ETA":"","Fecha confirm_x002e_ recolecta ":"","Fecha arribo EP":"","Carpeta BI completa ":"","Fecha carpeta completa":"","Seguimiento y desempeño":"","Fecha de evaluación ":"","PO Qty Completa ":"","Comprador":"Esteban Monge Jiménez","Solicitante_Final":"Marco Tulio Herrera Vargas"},{"ID Linea OC":"43333","OC":"22804","Fecha_OC":"46034","Código":"SERV1","Descripción":"SAP Business One Professional license Perpetual License","Estatus":"Completada","Estatus OC":"Aprobado","Tipo de PO":"Servicios / Proyectos","Servicio/proyecto":"Servicio","Estatus sistema":"Pendiente","Proveedor":"MegaSupport","Trazabilidad":"Arribada","Comentario General":"Completadas por Esteban Monge","Fecha requerida al prov":"","Fecha de envío PO a Prov":"","Procedencia":"Nacional","Parcial":"","Fecha PO lista (Proveedor)":"","Fecha ETA (Movible) ":"","Justificación cambio ETA":"","Fecha confirm_x002e_ recolecta ":"","Fecha arribo EP":"","Carpeta BI completa ":"","Fecha carpeta completa":"","Seguimiento y desempeño":"","Fecha de evaluación ":"","PO Qty Completa ":"","Comprador":"Esteban Monge Jiménez","Solicitante_Final":"Marco Tulio Herrera Vargas"},{"ID Linea OC":"43341","OC":"22811","Fecha_OC":"46034","Código":"CAJ-17","Descripción":"CAJA BS 59X49X195","Estatus":"N/A","Estatus OC":"Aprobado","Tipo de PO":"Material de Empaque","Servicio/proyecto":"","Estatus sistema":"Recibido","Proveedor":"CORRUGADOS SAN BOSCO","Trazabilidad":"NO APLICA","Comentario General":"","Fecha requerida al prov":"46044","Fecha de envío PO a Prov":"","Procedencia":"","Parcial":"","Fecha PO lista (Proveedor)":"","Fecha ETA (Movible) ":"","Justificación cambio ETA":"","Fecha confirm_x002e_ recolecta ":"","Fecha arribo EP":"","Carpeta BI completa ":"","Fecha carpeta completa":"","Seguimiento y desempeño":"","Fecha de evaluación ":"","PO Qty Completa ":"","Comprador":"Mauricio R. Carvajal Ramos","Solicitante_Final":"Sergio Ortiz Rojas"},{"ID Linea OC":"43352","OC":"22820","Fecha_OC":"46035","Código":"BOL-17","Descripción":"BOL-17 Bolsa empaque","Estatus":"N/A","Estatus OC":"Aprobado","Tipo de PO":"Material de Empaque","Servicio/proyecto":"","Estatus sistema":"Recibido","Proveedor":"Grupo Ecoplast S.A.","Trazabilidad":"NO APLICA","Comentario General":"","Fecha requerida al prov":"46055","Fecha de envío PO a Prov":"","Procedencia":"","Parcial":"","Fecha PO lista (Proveedor)":"","Fecha ETA (Movible) ":"","Justificación cambio ETA":"","Fecha confirm_x002e_ recolecta ":"","Fecha arribo EP":"","Carpeta BI completa ":"","Fecha carpeta completa":"","Seguimiento y desempeño":"","Fecha de evaluación ":"","PO Qty Completa ":"","Comprador":"Luz Esmeralda Suárez Ramírez","Solicitante_Final":"Luz Esmeralda Suárez Ramírez"},{"ID Linea OC":"43392","OC":"22842","Fecha_OC":"46036","Código":"TR55NAT","Descripción":"TR55 Natural","Estatus":"N/A","Estatus OC":"Aprobado","Tipo de PO":"Materia Prima","Servicio/proyecto":"","Estatus sistema":"Pendiente","Proveedor":"ENTEC POLYMER","Trazabilidad":"Arribada","Comentario General":"","Fecha requerida al prov":"46041","Fecha de envío PO a Prov":"","Procedencia":"Internacional","Parcial":"","Fecha PO lista (Proveedor)":"","Fecha ETA (Movible) ":"","Justificación cambio ETA":"","Fecha confirm_x002e_ recolecta ":"","Fecha arribo EP":"","Carpeta BI completa ":"","Fecha carpeta completa":"","Seguimiento y desempeño":"","Fecha de evaluación ":"","PO Qty Completa ":"","Comprador":"Pamela Molina Gonzalez","Solicitante_Final":"Luz Esmeralda Suárez Ramírez"}];
-let RAW=[],OC_MAP={},SOL_MAP={},ST={sol:'(Todos)',oc:null};
-let DD={sol:{open:false,all:[],filtered:[]},oc:{open:false,all:[],filtered:[]}};
+/* =========================================================
+   SmartStock CR — Beta universitaria
+   PYME simulada: Plásticos del Valle S.A. (Cartago, CR)
+   Todos los datos de este entorno son simulados.
+   ========================================================= */
 
-function excelToDate(s){
-  if(!s||s==='')return '';
-  const n=parseFloat(s);
-  if(isNaN(n)||n<1)return '';
-  const d=new Date((n-25569)*86400000);
-  if(isNaN(d.getTime()))return '';
-  return d.toLocaleDateString('es-CR',{day:'2-digit',month:'2-digit',year:'numeric'});
+const CRC = n => "₡" + Math.round(n).toLocaleString("es-CR");
+const CRCk = n => n >= 1e6 ? "₡" + (n/1e6).toFixed(2) + "M" : CRC(n);
+const NUM = n => Number(n).toLocaleString("es-CR");
+const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+
+/* ---------------- Proveedores ---------------- */
+const SUPPLIERS = [
+  {id:"PR-01", name:"Polímeros Centroamérica S.A.", cat:"Materia prima",  contact:"Luis Céspedes",  phone:"2237-4410", email:"ventas@polimerosca.cr",  lead:12, rating:4.7, zone:"Heredia"},
+  {id:"PR-02", name:"Distribuidora Zeta S.A.",      cat:"Consumibles",     contact:"Ana Salas",      phone:"2245-8890", email:"ordenes@zetacr.com",     lead:5,  rating:4.4, zone:"San José"},
+  {id:"PR-03", name:"Ferretería El Tornillo",       cat:"Ferretería",      contact:"Roberto Vega",   phone:"2551-2033", email:"pedidos@eltornillo.cr",  lead:3,  rating:4.1, zone:"Cartago"},
+  {id:"PR-04", name:"QuimiCentro CR",               cat:"Químicos",        contact:"Silvia Mora",    phone:"2290-7712", email:"info@quimicentro.cr",    lead:8,  rating:4.6, zone:"Alajuela"},
+  {id:"PR-05", name:"Empaques del Norte",           cat:"Empaque",         contact:"Jorge Ulate",    phone:"2460-3388", email:"ventas@empaquesnorte.cr",lead:6,  rating:4.3, zone:"San Carlos"},
+  {id:"PR-06", name:"Rodamientos y Bandas SRL",     cat:"Repuestos",       contact:"Carlos Jiménez", phone:"2222-1197", email:"soporte@roban.cr",       lead:15, rating:3.9, zone:"San José"},
+  {id:"PR-07", name:"Suministros Eléctricos GAM",   cat:"Eléctrico",       contact:"Diana Arce",     phone:"2280-5544", email:"cotiza@segam.cr",        lead:9,  rating:4.5, zone:"San José"},
+  {id:"PR-08", name:"Seguridad Total CR",           cat:"Seguridad",       contact:"Pablo Herrera",  phone:"2271-6620", email:"ventas@segtotal.cr",     lead:4,  rating:4.8, zone:"Heredia"},
+  {id:"PR-09", name:"Plásticos Industriales CR",    cat:"Materia prima",   contact:"Marcela Quirós", phone:"2438-9021", email:"cuentas@plasticr.com",   lead:10, rating:4.2, zone:"Alajuela"},
+  {id:"PR-10", name:"ImporTech Costa Rica",         cat:"Maquinaria",      contact:"Kevin Brenes",   phone:"4000-2288", email:"importech@itcr.co.cr",   lead:28, rating:4.0, zone:"Belén"}
+];
+
+/* --------- Productos: [código, descripción, categoría, stock, min, max, ubicación, provIdx, costo, díasSinUso] --------- */
+const RAW = [
+["MP-1001","Resina PP Homopolímero 25 kg","Materia Prima",480,150,900,"Bodega A-01",0,18500,2],
+["MP-1002","Resina HDPE Alta Densidad 25 kg","Materia Prima",92,120,700,"Bodega A-02",8,21300,3],
+["MP-1003","Resina PET Grado Botella 25 kg","Materia Prima",0,100,600,"Bodega A-03",8,24800,11],
+["MP-1004","Masterbatch Azul 5 kg","Materia Prima",34,20,120,"Bodega A-04",0,9800,6],
+["MP-1005","Masterbatch Blanco TiO₂ 5 kg","Materia Prima",18,25,120,"Bodega A-04",0,10400,4],
+["MP-1006","Masterbatch Negro 5 kg","Materia Prima",65,25,120,"Bodega A-05",0,9200,1],
+["MP-1007","Aditivo UV Estabilizante 10 kg","Materia Prima",12,15,80,"Bodega A-06",3,32500,17],
+["MP-1008","Antiestático Concentrado 5 kg","Materia Prima",40,10,60,"Bodega A-06",3,15600,124],
+["MP-1009","Resina PVC Suspensión 25 kg","Materia Prima",210,80,500,"Bodega A-07",8,19700,9],
+["MP-1010","Polipropileno Reciclado 25 kg","Materia Prima",355,100,800,"Bodega A-08",8,11200,2],
+["EM-2001","Empaque Industrial 60x80","Empaque",1450,500,4000,"Bodega B-01",4,380,1],
+["EM-2002","Cinta de Embalaje 48 mm","Empaque",320,150,900,"Bodega B-02",4,890,1],
+["EM-2003","Etiquetas Adhesivas 100x70 (rollo)","Empaque",76,80,400,"Bodega B-03",4,4200,3],
+["EM-2004","Bolsa Polietileno 40x60 (paq. 100)","Empaque",220,100,700,"Bodega B-04",4,2650,2],
+["EM-2005","Caja Corrugada 40x30x30","Empaque",0,200,1500,"Bodega B-05",4,720,7],
+["EM-2006","Stretch Film 18\" (rollo)","Empaque",95,60,300,"Bodega B-06",4,5400,1],
+["EM-2007","Zuncho Plástico 12 mm (rollo)","Empaque",48,30,150,"Bodega B-07",4,8900,5],
+["EM-2008","Esquineros de Cartón","Empaque",610,200,1200,"Bodega B-08",4,140,8],
+["RP-3001","Rodamiento SKF 6204","Repuestos",14,20,90,"Bodega C-01",5,6800,12],
+["RP-3002","Rodamiento SKF 6205","Repuestos",26,15,80,"Bodega C-01",5,7450,21],
+["RP-3003","Banda Transportadora 2 m","Repuestos",6,8,25,"Bodega C-02",5,58000,34],
+["RP-3004","Resistencia Tubular 220V 1500W","Repuestos",22,12,60,"Bodega C-03",6,14200,19],
+["RP-3005","Termocupla Tipo J","Repuestos",9,10,40,"Bodega C-03",6,11800,45],
+["RP-3006","Boquilla de Inyección 3 mm","Repuestos",31,15,80,"Bodega C-04",9,9600,14],
+["RP-3007","Husillo de Extrusión (repuesto)","Repuestos",1,2,6,"Bodega C-05",9,485000,168],
+["RP-3008","Sello Hidráulico 50 mm","Repuestos",44,20,120,"Bodega C-06",5,3900,27],
+["RP-3009","Manguera Hidráulica 1/2\" (m)","Repuestos",58,30,200,"Bodega C-06",5,4700,16],
+["RP-3010","Filtro de Aceite Hidráulico","Repuestos",17,12,60,"Bodega C-07",5,12400,31],
+["FE-4001","Tornillo Hexagonal 1/2\"","Ferretería",225,1500,6000,"Bodega D-01",2,210,2],
+["FE-4002","Tuerca Hexagonal 1/2\"","Ferretería",3200,1000,6000,"Bodega D-01",2,120,2],
+["FE-4003","Arandela Plana 1/2\"","Ferretería",4800,1000,8000,"Bodega D-02",2,65,4],
+["FE-4004","Tornillo Allen M8x40","Ferretería",780,600,4000,"Bodega D-02",2,180,6],
+["FE-4005","Broca HSS 3/8\"","Ferretería",36,25,120,"Bodega D-03",2,2350,22],
+["FE-4006","Disco de Corte 4-1/2\"","Ferretería",58,40,200,"Bodega D-03",2,1450,3],
+["FE-4007","Abrazadera Metálica 2\"","Ferretería",0,60,300,"Bodega D-04",2,890,13],
+["QM-5001","Pintura Epóxica Gris (galón)","Químicos",11,15,60,"Bodega E-01",3,28900,38],
+["QM-5002","Lubricante Industrial ISO 68 (5 L)","Químicos",27,20,90,"Bodega E-01",3,18700,5],
+["QM-5003","Grasa Multipropósito (kg)","Químicos",42,25,120,"Bodega E-02",3,7300,9],
+["QM-5004","Desmoldante en Aerosol","Químicos",63,30,150,"Bodega E-02",3,4950,2],
+["QM-5005","Solvente Dieléctrico (galón)","Químicos",8,10,40,"Bodega E-03",3,16400,97],
+["QM-5006","Limpiador de Purga para Extrusora 10 kg","Químicos",5,6,25,"Bodega E-03",9,42000,29],
+["SG-6001","Guantes Industriales (par)","Seguridad",140,80,400,"Bodega F-01",7,2800,1],
+["SG-6002","Lentes de Seguridad","Seguridad",96,50,250,"Bodega F-01",7,3400,4],
+["SG-6003","Mascarilla con Filtro P2","Seguridad",210,100,600,"Bodega F-02",7,4100,2],
+["SG-6004","Protector Auditivo Tipo Copa","Seguridad",34,30,150,"Bodega F-02",7,6200,18],
+["SG-6005","Calzado de Seguridad (par)","Seguridad",12,15,60,"Bodega F-03",7,32500,41],
+["EL-7001","Motor Eléctrico 3HP Trifásico","Eléctrico",3,4,12,"Bodega G-01",6,268000,112],
+["EL-7002","Cable THHN #12 (m)","Eléctrico",410,300,2000,"Bodega G-02",6,690,7],
+["EL-7003","Contactor 32A","Eléctrico",7,8,30,"Bodega G-03",6,24700,52],
+["EL-7004","Variador de Frecuencia 5HP","Eléctrico",2,2,8,"Bodega G-04",9,395000,143]
+];
+
+const PENDING = new Set(["MP-1003"]); // con OC en tránsito
+const ROTATION = {"MP-1001":9.4,"EM-2001":8.7,"FE-4003":7.9,"MP-1010":7.1,"EM-2002":6.8,"SG-6003":6.2,"MP-1006":5.9,"FE-4002":5.4,"EM-2004":4.9,"QM-5004":4.1};
+
+const PRODUCTS = RAW.map(r=>({
+  code:r[0], desc:r[1], cat:r[2], stock:r[3], min:r[4], max:r[5],
+  loc:r[6], sup:SUPPLIERS[r[7]], cost:r[8], idle:r[9],
+  rot: ROTATION[r[0]] || +(0.4 + (r[3]%7)*0.35).toFixed(1)
+}));
+
+function statusOf(p){
+  if(p.stock === 0) return PENDING.has(p.code) ? "Pendiente de ingreso" : "Agotado";
+  if(p.stock <= p.min) return "Bajo Stock";
+  return "Disponible";
+}
+const STATUS_CLASS = {"Disponible":"p-ok","Bajo Stock":"p-warn","Agotado":"p-bad","Pendiente de ingreso":"p-pend"};
+const STATUS_COLOR = {"Disponible":"var(--ok)","Bajo Stock":"var(--warn)","Agotado":"var(--bad)","Pendiente de ingreso":"var(--pend)"};
+
+/* ---------------- Movimientos ---------------- */
+const PEOPLE = ["María F. Rojas","Andrés Campos","Karla Vindas","José Pablo Ruiz","Estefanía Mora","Diego Álvarez"];
+const IN_REASONS = [["Compra","Entrada"],["Ajuste positivo","Entrada"],["Recepción de mercancía","Entrada"]];
+const OUT_REASONS = [["Consumo de producción","Salida"],["Venta","Salida"],["Ajuste negativo","Salida"],["Traslado interno","Salida"]];
+
+let seed = 42;
+const rnd = () => (seed = (seed*1103515245 + 12345) % 2147483648) / 2147483648;
+
+function buildMovements(n){
+  const out = [];
+  const now = new Date();
+  for(let i=0;i<n;i++){
+    const p = PRODUCTS[Math.floor(rnd()*PRODUCTS.length)];
+    const isIn = rnd() > 0.55;
+    const r = isIn ? IN_REASONS[Math.floor(rnd()*3)] : OUT_REASONS[Math.floor(rnd()*4)];
+    const d = new Date(now.getTime() - Math.floor(rnd()*10*86400000) - i*1800000);
+    const qty = Math.max(1, Math.round((p.max/12) * (0.3 + rnd()*1.4)));
+    const appr = rnd() > .82 ? "Pendiente" : (rnd() > .06 ? "Aprobado" : "Rechazado");
+    out.push({
+      id:"MV-" + String(4820 - i).padStart(4,"0"),
+      date:d, product:p, qty, type:r[1], reason:r[0],
+      who:PEOPLE[Math.floor(rnd()*PEOPLE.length)], appr
+    });
+  }
+  return out.sort((a,b)=>b.date-a.date);
+}
+const MOVES = buildMovements(30);
+
+/* ---------------- Órdenes de compra ---------------- */
+const PO_STATES = ["Abierta","Recepción parcial","Cerrada","Abierta","Cerrada","Recepción parcial"];
+function buildPOs(n){
+  const out=[]; const now=new Date();
+  for(let i=0;i<n;i++){
+    const sup = SUPPLIERS[Math.floor(rnd()*SUPPLIERS.length)];
+    const items = [];
+    const k = 1 + Math.floor(rnd()*3);
+    for(let j=0;j<k;j++){
+      const p = PRODUCTS[Math.floor(rnd()*PRODUCTS.length)];
+      const q = Math.max(2, Math.round((p.max/8)*(0.4+rnd())));
+      items.push({p, q, recv: 0});
+    }
+    const st = PO_STATES[Math.floor(rnd()*PO_STATES.length)];
+    items.forEach(it=>{ it.recv = st==="Cerrada" ? it.q : st==="Recepción parcial" ? Math.round(it.q*(0.3+rnd()*0.4)) : 0; });
+    const total = items.reduce((s,it)=>s+it.q*it.p.cost,0);
+    const recvVal = items.reduce((s,it)=>s+it.recv*it.p.cost,0);
+    out.push({
+      id:"OC-2026-" + String(1180 + i).padStart(4,"0"),
+      sup, items, status:st, total, pending: total - recvVal,
+      date:new Date(now.getTime() - Math.floor(rnd()*38*86400000)),
+      eta:new Date(now.getTime() + (sup.lead - Math.floor(rnd()*4))*86400000)
+    });
+  }
+  return out.sort((a,b)=>b.date-a.date);
+}
+const POS = buildPOs(15);
+
+/* ---------------- Métricas ---------------- */
+const M = {
+  get value(){ return PRODUCTS.reduce((s,p)=>s+p.stock*p.cost,0); },
+  get total(){ return PRODUCTS.length; },
+  get low(){ return PRODUCTS.filter(p=>statusOf(p)==="Bajo Stock").length; },
+  get out(){ return PRODUCTS.filter(p=>statusOf(p)==="Agotado").length; },
+  get today(){ return MOVES.filter(m=>sameDay(m.date,new Date())).length; },
+  get openPO(){ return POS.filter(p=>p.status!=="Cerrada").length; },
+  get pendingAmount(){ return POS.filter(p=>p.status!=="Cerrada").reduce((s,p)=>s+p.pending,0); }
+};
+function sameDay(a,b){return a.toDateString()===b.toDateString()}
+const fdate = d => d.toLocaleDateString("es-CR",{day:"2-digit",month:"short",year:"numeric"});
+const ftime = d => d.toLocaleTimeString("es-CR",{hour:"2-digit",minute:"2-digit"});
+
+/* =========================================================
+   Navegación
+   ========================================================= */
+const ICONS = {
+  dashboard:'<rect x="3" y="3" width="7" height="9" rx="1.6"/><rect x="14" y="3" width="7" height="5" rx="1.6"/><rect x="14" y="12" width="7" height="9" rx="1.6"/><rect x="3" y="16" width="7" height="5" rx="1.6"/>',
+  inventario:'<path d="M3 7l9-4 9 4v10l-9 4-9-4V7z"/><path d="M3 7l9 4 9-4"/><path d="M12 11v10"/>',
+  movimientos:'<path d="M7 3v14"/><path d="M4 14l3 3 3-3"/><path d="M17 21V7"/><path d="M20 10l-3-3-3 3"/>',
+  compras:'<circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h3l2.6 12.4a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.6L21 7H6"/>',
+  proveedores:'<path d="M3 21V9l7-5 7 5v12"/><path d="M10 21v-6h4v6"/><path d="M17 13h4v8h-4"/>',
+  reportes:'<path d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7l-5-5z"/><path d="M14 2v5h5"/><path d="M9 13h6"/><path d="M9 17h4"/>',
+  ia:'<path d="M12 3l1.7 4.8L18.5 9.5l-4.8 1.7L12 16l-1.7-4.8L5.5 9.5l4.8-1.7L12 3z"/><circle cx="18.5" cy="17.5" r="2"/>',
+  config:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1A1.6 1.6 0 0 0 9 19.4a1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1A1.6 1.6 0 0 0 4.6 9a1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/>',
+  perfil:'<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>'
+};
+const NAV = [
+  {g:"Operación", items:[
+    {id:"dashboard", label:"Dashboard", icon:"dashboard"},
+    {id:"inventario", label:"Inventario", icon:"inventario", badge:()=>M.low+M.out},
+    {id:"movimientos", label:"Movimientos", icon:"movimientos"}
+  ]},
+  {g:"Abastecimiento", items:[
+    {id:"compras", label:"Compras", icon:"compras"},
+    {id:"proveedores", label:"Proveedores", icon:"proveedores"}
+  ]},
+  {g:"Inteligencia", items:[
+    {id:"reportes", label:"Reportes", icon:"reportes"},
+    {id:"asistente", label:"IASHA · Asistente IA", icon:"ia"}
+  ]},
+  {g:"Cuenta", items:[
+    {id:"config", label:"Configuración", icon:"config"},
+    {id:"perfil", label:"Perfil del usuario", icon:"perfil"}
+  ]}
+];
+
+const app = document.getElementById("app");
+const navEl = document.getElementById("nav");
+const viewsEl = document.getElementById("views");
+let current = "dashboard";
+
+function renderNav(){
+  navEl.innerHTML = NAV.map(g=>`
+    <div class="nav-group-title">${g.g}</div>
+    ${g.items.map(i=>`
+      <button class="nav-item ${i.id===current?"active":""}" data-nav="${i.id}" title="${i.label}">
+        <svg viewBox="0 0 24 24">${ICONS[i.icon]}</svg>
+        <span class="nav-label">${i.label}</span>
+        ${i.badge && i.badge()>0 ? `<span class="badge">${i.badge()}</span>` : ""}
+      </button>`).join("")}
+  `).join("");
+  navEl.querySelectorAll("[data-nav]").forEach(b=>b.onclick=()=>go(b.dataset.nav));
 }
 
-function processData(data,src){
-  RAW=data;
-  OC_MAP={};SOL_MAP={};
-  data.forEach(r=>{
-    const oc=r[F.oc],sol=r[F.solicitante]||'—';
-    if(!OC_MAP[oc])OC_MAP[oc]=[];
-    OC_MAP[oc].push(r);
-    if(!SOL_MAP[sol])SOL_MAP[sol]=new Set();
-    SOL_MAP[sol].add(oc);
+const TITLES = {dashboard:"Dashboard",inventario:"Gestión del inventario",movimientos:"Movimientos del inventario",
+  compras:"Compras y órdenes",proveedores:"Proveedores",reportes:"Reportes e indicadores",
+  asistente:"IASHA — Asistente inteligente",config:"Configuración",perfil:"Perfil del usuario"};
+
+function go(id){
+  if(id==="asistente"){ openAssistant(); return; }
+  current = id;
+  document.getElementById("crumbTitle").textContent = TITLES[id];
+  renderNav();
+  VIEWS[id]();
+  app.classList.remove("mobile-open");
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+document.getElementById("toggleNav").onclick = ()=>{
+  if(window.innerWidth<=760) app.classList.toggle("mobile-open");
+  else app.classList.toggle("collapsed");
+};
+
+/* =========================================================
+   Gráficos SVG
+   ========================================================= */
+function areaChart(series, labels, {h=210, color="#2F6FD0", fmt=NUM}={}){
+  const w=760, L=44, T=16, B=26, R=10;
+  const max = Math.max(...series)*1.12, min = Math.min(...series)*0.88;
+  const X = i => L + i*(w-L-R)/(series.length-1);
+  const Y = v => T + (h-T-B) * (1-(v-min)/(max-min||1));
+  const pts = series.map((v,i)=>[X(i),Y(v)]);
+  const path = pts.map((p,i)=> i? `L${p[0].toFixed(1)},${p[1].toFixed(1)}`:`M${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(" ");
+  const area = `${path} L${X(series.length-1)},${h-B} L${L},${h-B} Z`;
+  const grid = [0,.25,.5,.75,1].map(f=>{
+    const y = T + (h-T-B)*f;
+    const v = max - (max-min)*f;
+    return `<line x1="${L}" y1="${y}" x2="${w-R}" y2="${y}" stroke="var(--line-soft)" stroke-width="1"/>
+            <text x="${L-8}" y="${y+3.5}" text-anchor="end">${fmt(v)}</text>`;
+  }).join("");
+  return `<svg class="chart" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" style="height:${h}px">
+    <defs><linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="${color}" stop-opacity=".26"/><stop offset="100%" stop-color="${color}" stop-opacity="0"/>
+    </linearGradient></defs>
+    ${grid}
+    <path d="${area}" fill="url(#g1)"/>
+    <path d="${path}" fill="none" stroke="${color}" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round">
+      <animate attributeName="stroke-dasharray" from="0 2400" to="2400 0" dur="1.1s" fill="freeze"/>
+    </path>
+    ${pts.map((p,i)=>`<circle cx="${p[0]}" cy="${p[1]}" r="${i===pts.length-1?4.5:2.8}" fill="#fff" stroke="${color}" stroke-width="2.2"/>`).join("")}
+    ${labels.map((l,i)=>`<text x="${X(i)}" y="${h-7}" text-anchor="middle">${l}</text>`).join("")}
+  </svg>`;
+}
+
+function groupedBars(labels, a, b, {h=210, ca="#2F6FD0", cb="#8FC3E8"}={}){
+  const w=760, L=46, T=14, B=26, R=10;
+  const max = Math.max(...a,...b)*1.15;
+  const bw = (w-L-R)/labels.length;
+  const Y = v => T + (h-T-B)*(1-v/max);
+  const grid = [0,.33,.66,1].map(f=>{
+    const y=T+(h-T-B)*f;
+    return `<line x1="${L}" y1="${y}" x2="${w-R}" y2="${y}" stroke="var(--line-soft)"/><text x="${L-8}" y="${y+3.5}" text-anchor="end">${Math.round(max-max*f)}</text>`;
+  }).join("");
+  const bars = labels.map((l,i)=>{
+    const x=L+i*bw, cw=bw*0.28;
+    return `
+      <rect x="${x+bw*0.14}" y="${Y(a[i])}" width="${cw}" height="${h-B-Y(a[i])}" rx="4" fill="${ca}">
+        <animate attributeName="height" from="0" to="${h-B-Y(a[i])}" dur=".7s" fill="freeze"/>
+        <animate attributeName="y" from="${h-B}" to="${Y(a[i])}" dur=".7s" fill="freeze"/></rect>
+      <rect x="${x+bw*0.14+cw+5}" y="${Y(b[i])}" width="${cw}" height="${h-B-Y(b[i])}" rx="4" fill="${cb}">
+        <animate attributeName="height" from="0" to="${h-B-Y(b[i])}" dur=".7s" begin=".1s" fill="freeze"/>
+        <animate attributeName="y" from="${h-B}" to="${Y(b[i])}" dur=".7s" begin=".1s" fill="freeze"/></rect>
+      <text x="${x+bw/2}" y="${h-7}" text-anchor="middle">${l}</text>`;
+  }).join("");
+  return `<svg class="chart" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" style="height:${h}px">${grid}${bars}</svg>`;
+}
+
+function donut(data, {size=190}={}){
+  const total = data.reduce((s,d)=>s+d.v,0);
+  const R=76, r=52, cx=size/2, cy=size/2;
+  let acc = -Math.PI/2;
+  const arcs = data.map(d=>{
+    const ang = d.v/total*Math.PI*2;
+    const x1=cx+R*Math.cos(acc), y1=cy+R*Math.sin(acc);
+    const x2=cx+R*Math.cos(acc+ang), y2=cy+R*Math.sin(acc+ang);
+    const xi2=cx+r*Math.cos(acc+ang), yi2=cy+r*Math.sin(acc+ang);
+    const xi1=cx+r*Math.cos(acc), yi1=cy+r*Math.sin(acc);
+    const large = ang>Math.PI?1:0;
+    acc+=ang;
+    return `<path d="M${x1},${y1} A${R},${R} 0 ${large} 1 ${x2},${y2} L${xi2},${yi2} A${r},${r} 0 ${large} 0 ${xi1},${yi1} Z" fill="${d.c}" opacity=".92">
+      <animate attributeName="opacity" from="0" to=".92" dur=".6s" fill="freeze"/></path>`;
+  }).join("");
+  return `<svg class="chart" viewBox="0 0 ${size} ${size}" style="height:${size}px;max-width:${size}px;margin:0 auto">
+    ${arcs}
+    <text x="${cx}" y="${cy-3}" text-anchor="middle" style="font-size:17px;font-weight:700;fill:var(--ink)">${data.length}</text>
+    <text x="${cx}" y="${cy+14}" text-anchor="middle">categorías</text>
+  </svg>`;
+}
+
+/* =========================================================
+   Vistas
+   ========================================================= */
+const VIEWS = {};
+
+/* ---------- Dashboard ---------- */
+let valueSeries = [];
+VIEWS.dashboard = () => {
+  const base = M.value;
+  if(!valueSeries.length){
+    valueSeries = [.86,.89,.87,.93,.91,.96,.94,.98,1].map(f=>base*f*(0.99+rnd()*0.02));
+  }
+  const labels = ["Nov","Dic","Ene","Feb","Mar","Abr","May","Jun","Jul"];
+  const catMap = {};
+  PRODUCTS.forEach(p=> catMap[p.cat] = (catMap[p.cat]||0) + p.stock*p.cost);
+  const palette = ["#2F6FD0","#4E7FA8","#8FC3E8","#6E9FD6","#A9C6DE","#3E8FC0","#7FA9CC"];
+  const cats = Object.entries(catMap).sort((a,b)=>b[1]-a[1]).map(([k,v],i)=>({k,v,c:palette[i%palette.length]}));
+  const months = ["Feb","Mar","Abr","May","Jun","Jul"];
+  const compras = [38,42,35,51,47,44], consumos = [33,45,39,42,50,46];
+
+  const critical = PRODUCTS.filter(p=>statusOf(p)!=="Disponible")
+    .sort((a,b)=> (a.stock/(a.min||1)) - (b.stock/(b.min||1))).slice(0,7);
+
+  viewsEl.innerHTML = `<div class="view">
+    <div class="grid kpis" style="margin-bottom:16px">
+      ${kpi("Valor del inventario", CRCk(M.value), "+3.4% vs. mes anterior", "up", "var(--primary)", "var(--primary-soft)",
+        '<path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>')}
+      ${kpi("Productos registrados", NUM(M.total), "8 categorías activas", "", "var(--steel)", "#EAF1F7",
+        '<path d="M3 7l9-4 9 4v10l-9 4-9-4V7z"/><path d="M3 7l9 4 9-4"/>')}
+      ${kpi("Bajo stock", NUM(M.low), "requieren reposición", "down", "var(--warn)", "var(--warn-soft)",
+        '<path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/>')}
+      ${kpi("Agotados", NUM(M.out), "sin existencias", "down", "var(--bad)", "var(--bad-soft)",
+        '<circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6"/><path d="M9 9l6 6"/>')}
+      ${kpi("Movimientos de hoy", NUM(M.today), "entradas y salidas", "up", "var(--ok)", "var(--ok-soft)",
+        '<path d="M7 3v14"/><path d="M4 14l3 3 3-3"/><path d="M17 21V7"/><path d="M20 10l-3-3-3 3"/>')}
+      ${kpi("Órdenes por recibir", NUM(M.openPO), CRCk(M.pendingAmount)+" pendientes", "", "var(--pend)", "var(--pend-soft)",
+        '<path d="M2 3h3l2.6 12.4a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.6L21 7H6"/><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/>')}
+    </div>
+
+    <div class="two" style="margin-bottom:16px">
+      <div class="card">
+        <div class="card-h"><h3>Comportamiento del inventario</h3><span class="sub">valor total · últimos 9 meses</span>
+          <div class="spacer"></div><span class="pill p-info">Simulación en vivo</span></div>
+        <div class="card-b" id="mainChart">${areaChart(valueSeries, labels, {fmt:v=>"₡"+(v/1e6).toFixed(1)+"M"})}</div>
+      </div>
+      <div class="card">
+        <div class="card-h"><h3>Valor por categoría</h3></div>
+        <div class="card-b">
+          ${donut(cats.map(c=>({v:c.v,c:c.c})))}
+          <div class="legend" style="flex-direction:column;gap:8px;margin-top:16px">
+            ${cats.map(c=>`<div style="display:flex;align-items:center;width:100%">
+              <i style="background:${c.c}"></i><span>${c.k}</span>
+              <b class="mono" style="margin-left:auto;font-weight:620">${CRCk(c.v)}</b></div>`).join("")}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="two" style="margin-bottom:16px">
+      <div class="card">
+        <div class="card-h"><h3>Compras vs. consumos</h3><span class="sub">millones de colones por mes</span></div>
+        <div class="card-b">
+          ${groupedBars(months, compras, consumos)}
+          <div class="legend"><span><i style="background:#2F6FD0"></i>Compras</span><span><i style="background:#8FC3E8"></i>Consumos</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-h"><h3>Actividad reciente</h3><span class="sub">últimos movimientos</span></div>
+        <div class="card-b"><div class="tl" id="tl">${MOVES.slice(0,6).map(tlItem).join("")}</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><h3>Productos que necesitan atención</h3>
+        <div class="spacer"></div>
+        <button class="btn" data-nav-jump="inventario">Ver inventario completo
+          <svg viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg></button>
+      </div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Código</th><th>Descripción</th><th>Existencias</th><th>Mínimo</th><th>Cobertura</th><th>Proveedor</th><th>Estado</th></tr></thead>
+        <tbody>${critical.map(p=>`<tr>
+          <td><span class="code">${p.code}</span></td>
+          <td>${p.desc}</td>
+          <td class="mono"><b>${NUM(p.stock)}</b></td>
+          <td class="mono">${NUM(p.min)}</td>
+          <td>${coverageBar(p)}</td>
+          <td style="color:var(--ink-2)">${p.sup.name}</td>
+          <td><span class="pill ${STATUS_CLASS[statusOf(p)]}">${statusOf(p)}</span></td>
+        </tr>`).join("")}</tbody>
+      </table></div>
+    </div>
+  </div>`;
+  bindJumps();
+};
+
+function kpi(label, val, delta, dir, color, soft, icon){
+  return `<div class="kpi" style="--accent:${color};--accent-soft:${soft}">
+    <div class="lbl"><span class="mini-ico"><svg viewBox="0 0 24 24">${icon}</svg></span>${label}</div>
+    <div class="val">${val}</div>
+    <div class="delta ${dir}"><em>${delta}</em></div>
+  </div>`;
+}
+function coverageBar(p){
+  const pct = clamp(Math.round(p.stock/(p.max||1)*100),0,100);
+  const st = statusOf(p);
+  return `<div style="display:flex;align-items:center;gap:9px">
+    <div class="bar"><i style="width:${pct}%;background:${STATUS_COLOR[st]}"></i></div>
+    <span class="mono" style="font-size:11.5px;color:var(--muted)">${pct}%</span></div>`;
+}
+function tlItem(m){
+  const c = m.type==="Entrada" ? "var(--ok)" : "var(--steel)";
+  return `<div class="tl-i" style="--accent:${c}">
+    <div class="t">${m.type} · ${m.product.desc}</div>
+    <div class="s">${m.qty} u. · ${m.reason} · ${m.who} · ${fdate(m.date)} ${ftime(m.date)}</div>
+  </div>`;
+}
+
+/* ---------- Inventario ---------- */
+let invState = {q:"", cat:"todas", status:"todos", sup:"todos", sort:"code", dir:1, mode:"tabla"};
+VIEWS.inventario = () => {
+  const cats = [...new Set(PRODUCTS.map(p=>p.cat))];
+  viewsEl.innerHTML = `<div class="view">
+    <div class="toolbar">
+      <div class="field"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.7" y2="16.7"/></svg>
+        <input id="invQ" placeholder="Buscador inteligente: código, descripción, ubicación o proveedor…" value="${invState.q}"></div>
+      <select id="invCat">${["todas",...cats].map(c=>`<option ${invState.cat===c?"selected":""}>${c}</option>`).join("")}</select>
+      <select id="invStatus">${["todos","Disponible","Bajo Stock","Agotado","Pendiente de ingreso"].map(s=>`<option ${invState.status===s?"selected":""}>${s}</option>`).join("")}</select>
+      <select id="invSup"><option>todos</option>${SUPPLIERS.map(s=>`<option ${invState.sup===s.name?"selected":""}>${s.name}</option>`).join("")}</select>
+      <div class="seg">
+        <button data-mode="tabla" class="${invState.mode==="tabla"?"on":""}">Tabla</button>
+        <button data-mode="tarjetas" class="${invState.mode==="tarjetas"?"on":""}">Tarjetas</button>
+      </div>
+      <div class="spacer"></div>
+      <button class="btn" onclick="simulateExport('Excel','Inventario_SmartStockCR.xlsx')">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>Exportar</button>
+      <button class="btn btn-primary" onclick="toast('Registro de producto','Formulario disponible en la versión completa.')">
+        <svg viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M5 12h14"/></svg>Nuevo producto</button>
+    </div>
+    <div id="invOut"></div>
+  </div>`;
+
+  const q = ()=>document.getElementById("invQ");
+  q().oninput = e=>{invState.q=e.target.value;paintInv()};
+  document.getElementById("invCat").onchange = e=>{invState.cat=e.target.value;paintInv()};
+  document.getElementById("invStatus").onchange = e=>{invState.status=e.target.value;paintInv()};
+  document.getElementById("invSup").onchange = e=>{invState.sup=e.target.value;paintInv()};
+  document.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{
+    invState.mode=b.dataset.mode;
+    document.querySelectorAll("[data-mode]").forEach(x=>x.classList.toggle("on",x===b));
+    paintInv();
   });
-  const sols=['(Todos)',...Object.keys(SOL_MAP).filter(s=>s&&s!=='0').sort()];
-  DD.sol.all=sols.map(s=>({v:s,l:s}));
-  buildOCList(Object.keys(OC_MAP));
-  renderList('sol',DD.sol.all);
-  renderList('oc',DD.oc.all);
-  ST={sol:'(Todos)',oc:null};
-  document.getElementById('val-sol').textContent='(Todos)';
-  document.getElementById('val-sol').className='';
-  document.getElementById('val-oc').textContent='Seleccione una OC';
-  document.getElementById('val-oc').className='ph';
-  clearCards();
-  const ts=new Date().toLocaleString('es-CR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
-  const dot=document.getElementById('bdot'),btxt=document.getElementById('btxt');
-  if(src==='live'){dot.className='dot';btxt.innerHTML='<strong>'+data.length+' líneas en vivo</strong> desde SharePoint · '+ts;}
-  else if(src==='file'){dot.className='dot local';btxt.innerHTML='<strong>'+data.length+' líneas</strong> desde archivo local · '+ts;}
-  else{dot.className='dot local';btxt.innerHTML='<strong>'+data.length+' líneas</strong> · Datos de muestra · Usa "Actualizar" o carga el JSON para datos en vivo';}
+  paintInv();
+};
+
+function filteredProducts(){
+  const t = invState.q.trim().toLowerCase();
+  let list = PRODUCTS.filter(p=>{
+    if(invState.cat!=="todas" && p.cat!==invState.cat) return false;
+    if(invState.status!=="todos" && statusOf(p)!==invState.status) return false;
+    if(invState.sup!=="todos" && p.sup.name!==invState.sup) return false;
+    if(!t) return true;
+    return (p.code+" "+p.desc+" "+p.cat+" "+p.loc+" "+p.sup.name).toLowerCase().includes(t);
+  });
+  const k = invState.sort;
+  list.sort((a,b)=>{
+    let va = k==="status" ? statusOf(a) : a[k], vb = k==="status" ? statusOf(b) : b[k];
+    if(k==="sup"){va=a.sup.name;vb=b.sup.name}
+    if(typeof va==="string") return va.localeCompare(vb)*invState.dir;
+    return (va-vb)*invState.dir;
+  });
+  return list;
 }
 
-function buildOCList(keys){
-  const sorted=keys.slice().sort((a,b)=>Number(a)-Number(b));
-  DD.oc.all=sorted.map(oc=>{const rows=OC_MAP[oc];const prov=(rows[0]?.[F.proveedor]||'').substring(0,26);return{v:oc,l:'OC-'+oc+' · '+prov};});
-}
-
-async function tryFetch(){
-  document.getElementById('syncBtn').classList.add('spin');
-  try{
-    const r=await fetch(SHAREPOINT_URL,{cache:'no-cache',redirect:'follow',signal:AbortSignal.timeout(15000)});
-    if(!r.ok)throw new Error('HTTP '+r.status);
-    const data=await r.json();
-    processData(Array.isArray(data)?data:[],data.length?'live':'embedded');
-  }catch(e){
-    console.warn('SharePoint fetch failed:',e.message);
-    document.getElementById('btxt').innerHTML='<strong>'+RAW.length+' líneas cargadas</strong> · Arrastra el archivo oc-data.json para actualizar';
-    document.getElementById('bdot').className='dot local';
+function paintInv(){
+  const list = filteredProducts();
+  const out = document.getElementById("invOut");
+  if(!list.length){
+    out.innerHTML = `<div class="card"><div class="empty"><b>Sin coincidencias</b>Ajusta el texto de búsqueda o limpia los filtros para ver el inventario.</div></div>`;
+    return;
   }
-  document.getElementById('syncBtn').classList.remove('spin');
-}
-
-function toggleDD(id){
-  const o=id==='sol'?'oc':'sol';
-  if(DD[o].open)closeDD(o);
-  DD[id].open=!DD[id].open;
-  document.getElementById('btn-'+id).classList.toggle('open',DD[id].open);
-  document.getElementById('panel-'+id).classList.toggle('open',DD[id].open);
-  if(DD[id].open){document.getElementById('search-'+id).value='';renderList(id,DD[id].all);setTimeout(()=>document.getElementById('search-'+id).focus(),60);}
-}
-function closeDD(id){DD[id].open=false;document.getElementById('btn-'+id).classList.remove('open');document.getElementById('panel-'+id).classList.remove('open');}
-function filterDD(id,q){const res=q?DD[id].all.filter(i=>i.l.toLowerCase().includes(q.toLowerCase())):DD[id].all;renderList(id,res);}
-function renderList(id,items){
-  const el=document.getElementById('list-'+id);
-  if(!items.length){el.innerHTML='<div class="ddempty">Sin resultados</div>';return;}
-  const cur=id==='sol'?ST.sol:ST.oc;
-  el.innerHTML=items.map(i=>'<div class="ddi'+(String(i.v)===String(cur)?' sel':'')+'" onclick="pickDD(\''+id+'\',\''+i.v+'\')">'+i.l+'</div>').join('');
-}
-function pickDD(id,val){
-  if(id==='sol'){
-    ST.sol=val;ST.oc=null;
-    document.getElementById('val-sol').textContent=val;document.getElementById('val-sol').className='';
-    document.getElementById('val-oc').textContent='Seleccione una OC';document.getElementById('val-oc').className='ph';
-    const keys=val==='(Todos)'?Object.keys(OC_MAP):[...SOL_MAP[val]||new Set()];
-    buildOCList(keys);renderList('oc',DD.oc.all);clearCards();
-  }else{
-    ST.oc=val;
-    document.getElementById('val-oc').textContent='OC-'+val;document.getElementById('val-oc').className='';
-    loadOC(val,OC_MAP[val]||[]);
+  if(invState.mode==="tarjetas"){
+    out.innerHTML = `<div class="count" style="margin-bottom:12px">${list.length} de ${PRODUCTS.length} productos</div>
+      <div class="pgrid">${list.map(p=>{
+      const st=statusOf(p);
+      return `<div class="pcard" onclick="productDetail('${p.code}')">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span class="code">${p.code}</span><span class="pill ${STATUS_CLASS[st]}">${st}</span></div>
+        <h4 title="${p.desc}">${p.desc}</h4>
+        <div class="meta">${p.cat} · ${p.loc}</div>
+        <div class="row"><span class="qty mono">${NUM(p.stock)}<span style="font-size:11px;color:var(--muted);font-weight:400"> u.</span></span>
+          <span style="color:var(--muted)">mín ${NUM(p.min)} / máx ${NUM(p.max)}</span></div>
+        <div style="margin-top:9px">${coverageBar(p)}</div>
+        <div class="row" style="border-top:1px dashed var(--line-soft);padding-top:10px">
+          <span style="color:var(--muted)">${p.sup.name.split(" ")[0]}</span><b class="mono">${CRC(p.cost)}</b></div>
+      </div>`;}).join("")}</div>`;
+    return;
   }
-  closeDD(id);
+  const cols = [["code","Código"],["desc","Descripción"],["cat","Categoría"],["stock","Existencias"],["min","Mín."],["max","Máx."],
+    ["", "Cobertura"],["loc","Ubicación"],["sup","Proveedor principal"],["cost","Costo unit."],["status","Estado"]];
+  out.innerHTML = `<div class="count" style="margin-bottom:12px">${list.length} de ${PRODUCTS.length} productos · valor filtrado <b>${CRCk(list.reduce((s,p)=>s+p.stock*p.cost,0))}</b></div>
+    <div class="card"><div class="tbl-wrap"><table>
+    <thead><tr>${cols.map(c=>`<th ${c[0]?`data-sort="${c[0]}"`:""} class="${invState.sort===c[0]?"sorted":""}">${c[1]}${c[0]?` <span class="arw">${invState.sort===c[0]?(invState.dir>0?"▲":"▼"):"▲"}</span>`:""}</th>`).join("")}</tr></thead>
+    <tbody>${list.map(p=>{const st=statusOf(p);return `<tr style="cursor:pointer" onclick="productDetail('${p.code}')">
+      <td><span class="code">${p.code}</span></td>
+      <td><b style="font-weight:600">${p.desc}</b></td>
+      <td style="color:var(--ink-2)">${p.cat}</td>
+      <td class="mono"><b>${NUM(p.stock)}</b></td>
+      <td class="mono" style="color:var(--muted)">${NUM(p.min)}</td>
+      <td class="mono" style="color:var(--muted)">${NUM(p.max)}</td>
+      <td>${coverageBar(p)}</td>
+      <td style="color:var(--ink-2)">${p.loc}</td>
+      <td style="color:var(--ink-2)">${p.sup.name}</td>
+      <td class="mono">${CRC(p.cost)}</td>
+      <td><span class="pill ${STATUS_CLASS[st]}">${st}</span></td></tr>`}).join("")}</tbody>
+  </table></div></div>`;
+  out.querySelectorAll("[data-sort]").forEach(th=>th.onclick=()=>{
+    const k=th.dataset.sort;
+    invState.dir = invState.sort===k ? -invState.dir : 1;
+    invState.sort = k; paintInv();
+  });
 }
 
-function clearCards(){
-  document.getElementById('gen-body').innerHTML='<div class="empty"><div class="empty-icon"><svg width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="8" y="6" width="28" height="34" rx="3"/><line x1="14" y1="15" x2="30" y2="15"/><line x1="14" y1="21" x2="30" y2="21"/><line x1="14" y1="27" x2="22" y2="27"/></svg></div><p>Seleccione una OC para ver los datos generales</p></div>';
-  document.getElementById('lin-body').innerHTML='<div class="empty"><div class="empty-icon"><svg width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="6" y="10" width="32" height="26" rx="3"/><line x1="6" y1="18" x2="38" y2="18"/><line x1="18" y1="18" x2="18" y2="36"/><line x1="28" y1="18" x2="28" y2="36"/></svg></div><p>Seleccione una OC para ver las líneas</p></div>';
-  document.getElementById('traz-body').innerHTML='<div class="empty"><div class="empty-icon"><svg width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="22" r="5"/><circle cx="22" cy="22" r="5"/><circle cx="35" cy="22" r="5"/><line x1="14" y1="22" x2="17" y2="22"/><line x1="27" y1="22" x2="30" y2="22"/></svg></div><p>Seleccione una OC para ver la trazabilidad</p></div>';
-  document.getElementById('badge-lin').style.display='none';
+function productDetail(code){
+  const p = PRODUCTS.find(x=>x.code===code);
+  const mv = MOVES.filter(m=>m.product.code===code).slice(0,5);
+  const st = statusOf(p);
+  toast(p.desc, `${st} · ${NUM(p.stock)} u. en ${p.loc} · rotación ${p.rot}× · ${mv.length} movimientos recientes`);
 }
 
-function loadOC(id,rows){
-  ['card-gen','card-lin','card-traz'].forEach((c,i)=>{const el=document.getElementById(c);el.style.animation='none';void el.offsetWidth;el.style.animation='fadeUp 0.22s '+(i*0.06)+'s ease-out both';});
-  renderGeneral(id,rows);
-  renderLineas(rows);
-  renderTraz(rows);
+/* ---------- Movimientos ---------- */
+let mvState = {type:"todos", q:""};
+VIEWS.movimientos = () => {
+  viewsEl.innerHTML = `<div class="view">
+    <div class="grid three" style="margin-bottom:16px">
+      ${kpi("Entradas del período", NUM(MOVES.filter(m=>m.type==="Entrada").length), "compras, ajustes y recepciones","up","var(--ok)","var(--ok-soft)",'<path d="M12 19V5"/><path d="M5 12l7-7 7 7"/>')}
+      ${kpi("Salidas del período", NUM(MOVES.filter(m=>m.type==="Salida").length), "consumos, ventas y traslados","","var(--steel)","#EAF1F7",'<path d="M12 5v14"/><path d="M19 12l-7 7-7-7"/>')}
+      ${kpi("Pendientes de aprobación", NUM(MOVES.filter(m=>m.appr==="Pendiente").length), "requieren visto bueno","down","var(--warn)","var(--warn-soft)",'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>')}
+    </div>
+    <div class="toolbar">
+      <div class="field"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.7" y2="16.7"/></svg>
+        <input id="mvQ" placeholder="Buscar por producto, responsable o motivo…"></div>
+      <div class="seg">${["todos","Entrada","Salida"].map(t=>`<button data-mv="${t}" class="${mvState.type===t?"on":""}">${t==="todos"?"Todos":t+"s"}</button>`).join("")}</div>
+      <div class="spacer"></div>
+      <button class="btn" onclick="simulateExport('Excel','Movimientos_SmartStockCR.xlsx')">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>Exportar</button>
+      <button class="btn btn-primary" onclick="simulateMovement(true)">
+        <svg viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M5 12h14"/></svg>Registrar movimiento</button>
+    </div>
+    <div id="mvOut"></div></div>`;
+  document.getElementById("mvQ").oninput = e=>{mvState.q=e.target.value;paintMv()};
+  document.querySelectorAll("[data-mv]").forEach(b=>b.onclick=()=>{
+    mvState.type=b.dataset.mv;
+    document.querySelectorAll("[data-mv]").forEach(x=>x.classList.toggle("on",x===b));
+    paintMv();
+  });
+  paintMv();
+};
+function paintMv(){
+  const t=mvState.q.trim().toLowerCase();
+  const list = MOVES.filter(m=>{
+    if(mvState.type!=="todos" && m.type!==mvState.type) return false;
+    if(!t) return true;
+    return (m.product.desc+" "+m.who+" "+m.reason+" "+m.id).toLowerCase().includes(t);
+  });
+  const el = document.getElementById("mvOut");
+  if(!list.length){ el.innerHTML=`<div class="card"><div class="empty"><b>Sin movimientos</b>No hay registros que coincidan con el filtro seleccionado.</div></div>`; return; }
+  el.innerHTML = `<div class="card"><div class="tbl-wrap"><table>
+    <thead><tr><th>Folio</th><th>Fecha</th><th>Tipo</th><th>Producto</th><th>Cantidad</th><th>Motivo</th><th>Responsable</th><th>Aprobación</th></tr></thead>
+    <tbody>${list.map(m=>`<tr>
+      <td><span class="code">${m.id}</span></td>
+      <td class="mono" style="color:var(--ink-2)">${fdate(m.date)} · ${ftime(m.date)}</td>
+      <td><span class="pill ${m.type==="Entrada"?"p-ok":"p-info"}">${m.type}</span></td>
+      <td><b style="font-weight:600">${m.product.desc}</b><br><span style="font-size:11px;color:var(--muted)">${m.product.code} · ${m.product.loc}</span></td>
+      <td class="mono"><b>${m.type==="Entrada"?"+":"−"}${NUM(m.qty)}</b></td>
+      <td style="color:var(--ink-2)">${m.reason}</td>
+      <td style="color:var(--ink-2)">${m.who}</td>
+      <td><span class="pill ${m.appr==="Aprobado"?"p-ok":m.appr==="Pendiente"?"p-warn":"p-bad"}">${m.appr}</span></td>
+    </tr>`).join("")}</tbody></table></div></div>`;
 }
 
-function sbadge(s){
-  s=String(s||'').trim();
-  if(!s||s==='0')return '<span class="badge bn">—</span>';
-  const m={Aprobado:'bg',Completada:'bg',Completadas:'bg',Completado:'bg',Recibido:'bg','En tránsito':'bb','En proceso':'ba','En proceso ':'ba',Pendiente:'bn','N/A':'bn',Rechazado:'br'};
-  return '<span class="badge '+(m[s]||'bn')+'">'+s+'</span>';
+/* ---------- Compras ---------- */
+let poState = {status:"todas"};
+VIEWS.compras = () => {
+  viewsEl.innerHTML = `<div class="view">
+    <div class="grid three" style="margin-bottom:16px">
+      ${kpi("Órdenes abiertas", NUM(POS.filter(p=>p.status==="Abierta").length), "en espera de recepción","","var(--primary)","var(--primary-soft)",'<path d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7z"/><path d="M14 2v5h5"/>')}
+      ${kpi("Recepciones parciales", NUM(POS.filter(p=>p.status==="Recepción parcial").length), "con saldo pendiente","down","var(--warn)","var(--warn-soft)",'<path d="M12 3v18"/><path d="M3 12h18"/>')}
+      ${kpi("Saldo pendiente", CRCk(M.pendingAmount), "monto por recibir","","var(--steel)","#EAF1F7",'<path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>')}
+    </div>
+    <div class="toolbar">
+      <div class="seg">${["todas","Abierta","Recepción parcial","Cerrada"].map(s=>`<button data-po="${s}" class="${poState.status===s?"on":""}">${s==="todas"?"Todas":s}</button>`).join("")}</div>
+      <div class="spacer"></div>
+      <button class="btn" onclick="simulateExport('PDF','Ordenes_Compra_SmartStockCR.pdf')">
+        <svg viewBox="0 0 24 24"><path d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7z"/><path d="M14 2v5h5"/></svg>Generar PDF</button>
+      <button class="btn btn-primary" onclick="toast('Nueva orden de compra','El flujo de creación se habilita en la versión completa.')">
+        <svg viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M5 12h14"/></svg>Nueva orden</button>
+    </div>
+    <div id="poOut"></div></div>`;
+  document.querySelectorAll("[data-po]").forEach(b=>b.onclick=()=>{
+    poState.status=b.dataset.po;
+    document.querySelectorAll("[data-po]").forEach(x=>x.classList.toggle("on",x===b));
+    paintPO();
+  });
+  paintPO();
+};
+function paintPO(){
+  const list = POS.filter(p=>poState.status==="todas"||p.status===poState.status);
+  const cls = {"Abierta":"p-info","Recepción parcial":"p-warn","Cerrada":"p-ok"};
+  document.getElementById("poOut").innerHTML = list.length ? `<div class="card"><div class="tbl-wrap"><table>
+    <thead><tr><th>N.º de OC</th><th>Proveedor</th><th>Fecha</th><th>Recepción estimada</th><th>Productos asociados</th><th>Avance</th><th>Monto total</th><th>Saldo</th><th>Estado</th></tr></thead>
+    <tbody>${list.map(o=>{
+      const recv = o.items.reduce((s,i)=>s+i.recv,0), tot = o.items.reduce((s,i)=>s+i.q,0);
+      const pct = Math.round(recv/tot*100);
+      return `<tr>
+        <td><span class="code">${o.id}</span></td>
+        <td><b style="font-weight:600">${o.sup.name}</b><br><span style="font-size:11px;color:var(--muted)">${o.sup.contact} · ${o.sup.phone}</span></td>
+        <td class="mono" style="color:var(--ink-2)">${fdate(o.date)}</td>
+        <td class="mono" style="color:var(--ink-2)">${o.status==="Cerrada"?"—":fdate(o.eta)}</td>
+        <td style="white-space:normal;max-width:280px;font-size:12px;color:var(--ink-2)">${o.items.map(i=>`${i.p.desc} <span class="mono">(${i.recv}/${i.q})</span>`).join("<br>")}</td>
+        <td><div style="display:flex;align-items:center;gap:9px"><div class="bar"><i style="width:${pct}%;background:${pct===100?"var(--ok)":"var(--primary)"}"></i></div><span class="mono" style="font-size:11.5px;color:var(--muted)">${pct}%</span></div></td>
+        <td class="mono"><b>${CRC(o.total)}</b></td>
+        <td class="mono" style="color:${o.pending>0?"var(--bad)":"var(--muted)"}">${o.pending>0?CRC(o.pending):"—"}</td>
+        <td><span class="pill ${cls[o.status]}">${o.status}</span></td></tr>`}).join("")}</tbody>
+  </table></div></div>` : `<div class="card"><div class="empty"><b>Sin órdenes en este estado</b>Cambia el filtro para ver el resto del historial de compras.</div></div>`;
 }
 
-function renderGeneral(ocId,rows){
-  const f=rows[0]||{};
-  const tipos=[...new Set(rows.map(r=>r[F.tipo_po]).filter(Boolean))].join(', ')||'—';
-  const sol=f[F.solicitante]||'—';
-  const com=f[F.comentario]||'—';
-  const r=(k,v,sp)=>'<div class="dc"><span class="dk">'+k+'</span>'+(sp?'<span class="dv">'+sp+'</span>':'<span class="dv'+(!v||v==='0'||v===''?' mt':'')+'">'+(!v||v==='0'||v===''?'—':v)+'</span>')+'</div>';
-  document.getElementById('gen-body').innerHTML='<div class="dgrid">'+
-    r('OC','OC-'+ocId)+r('Tipo de PO',tipos)+
-    r('Fecha OC',excelToDate(f[F.fecha_oc]))+r('Servicio / Proyecto',f[F.servicio]||'—')+
-    r('Proveedor',f[F.proveedor])+r('Procedencia',f[F.procedencia]||'—')+
-    r('Comprador',f[F.comprador])+r('# Líneas',rows.length)+
-    r('Estatus OC','',sbadge(f[F.estatus_oc]))+r('Solicitante',sol!=='0'?sol:'—')+
-    r('Comentario',com)+r('PO Completa',f[F.po_qty]||'—')+
-  '</div>';
-}
+/* ---------- Proveedores ---------- */
+VIEWS.proveedores = () => {
+  const stats = SUPPLIERS.map(s=>{
+    const pos = POS.filter(o=>o.sup.id===s.id);
+    const open = pos.filter(o=>o.status!=="Cerrada");
+    return {s, count:pos.length, open:open.length, amount:pos.reduce((a,o)=>a+o.total,0),
+      prods:PRODUCTS.filter(p=>p.sup.id===s.id).length};
+  }).sort((a,b)=>b.open-a.open || b.amount-a.amount);
+  viewsEl.innerHTML = `<div class="view">
+    <div class="toolbar">
+      <div class="count">10 proveedores activos · ${PRODUCTS.length} productos asignados</div>
+      <div class="spacer"></div>
+      <button class="btn" onclick="simulateExport('Excel','Proveedores_SmartStockCR.xlsx')">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>Exportar</button>
+    </div>
+    <div class="pgrid">${stats.map(x=>`
+      <div class="pcard" onclick="toast('${x.s.name.replace(/'/g,"")}','${x.open} órdenes abiertas · ${x.prods} productos · entrega en ${x.s.lead} días')">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span class="code">${x.s.id}</span>
+          <span class="pill ${x.open>1?"p-warn":"p-ok"}">${x.open} abiertas</span></div>
+        <h4 title="${x.s.name}">${x.s.name}</h4>
+        <div class="meta">${x.s.cat} · ${x.s.zone}</div>
+        <div style="margin-top:12px;font-size:12px;color:var(--ink-2);line-height:1.9">
+          <div>${x.s.contact} · ${x.s.phone}</div>
+          <div style="color:var(--muted)">${x.s.email}</div>
+        </div>
+        <div class="row" style="border-top:1px dashed var(--line-soft);padding-top:11px">
+          <span style="color:var(--muted)">Entrega ${x.s.lead} días</span>
+          <span>${"★".repeat(Math.round(x.s.rating))}<span style="color:var(--muted)"> ${x.s.rating}</span></span></div>
+        <div class="row"><span style="color:var(--muted)">${x.prods} productos</span><b class="mono">${CRCk(x.amount)}</b></div>
+      </div>`).join("")}</div></div>`;
+};
 
-function lpill(s){
-  s=String(s||'').trim();
-  if(!s||s==='0')return '<span class="tm">—</span>';
-  const m={Completada:'pg',Completadas:'pg',Recibido:'pg','En proceso':'pa','En proceso ':'pa','En tránsito':'pb',Pendiente:'pn','N/A':'pn',Rechazado:'pr'};
-  return '<span class="pill '+(m[s]||'pn')+'">'+s+'</span>';
-}
-function tpill(t){
-  t=String(t||'').trim();
-  if(!t)return '<span class="tm">—</span>';
-  const m={Arribada:'pg','Servicio completado':'pg','NO APLICA':'pn','En producción':'pa'};
-  const lbl=t.length>14?t.substring(0,13)+'…':t;
-  return '<span class="pill '+(m[t]||'pn')+'" title="'+t+'">'+lbl+'</span>';
-}
-
-function renderLineas(rows){
-  const n=rows.length;
-  document.getElementById('badge-lin').textContent=n+' línea'+(n!==1?'s':'');
-  document.getElementById('badge-lin').style.display='inline-block';
-  const trs=rows.map((r,i)=>'<tr><td class="tn">'+(i+1)+'</td><td class="tc">'+(r[F.codigo]||'—')+'</td><td class="td" title="'+String(r[F.desc]||'').replace(/\r?\n/g,' ')+'">'+String(r[F.desc]||'—').replace(/\r?\n/g,' ')+'</td><td>'+lpill(r[F.estatus])+'</td><td class="tm">'+(r[F.sistema]||'—')+'</td><td>'+tpill(r[F.traz])+'</td><td style="text-align:center;color:'+(r[F.parcial]==='Sí'?'#d97706':'var(--slate)')+'">'+  (r[F.parcial]||'—')+'</td></tr>').join('');
-  document.getElementById('lin-body').innerHTML='<div class="tw"><table><thead><tr><th style="width:44px">#</th><th style="width:110px">Código</th><th>Descripción</th><th style="width:110px">Estatus</th><th style="width:100px">Sistema</th><th style="width:110px">Trazabilidad</th><th style="width:68px;text-align:center">Parcial</th></tr></thead><tbody>'+trs+'</tbody></table></div>';
-}
-
-function firstDate(rows,field){for(const r of rows){const v=r[field];if(v&&v!=='')return excelToDate(v);}return '';}
-
-function renderTraz(rows){
-  // PO Lista: verde si hay fecha O si el Estatus OC es Aprobado/Completada/Completado
-  const estatusOC = String(rows[0]?.[F.estatus_oc]||'').trim();
-  const ocAprobada = ['Aprobado','Completada','Completado','Completadas'].includes(estatusOC);
-  const poListaDate = firstDate(rows,F.f_po_lista);
-  const poListaDone = !!poListaDate || ocAprobada;
-  const poListaLabel = poListaDate || (ocAprobada ? 'Aprobado' : '');
-
-  const ms=[
-    {l:'PO\nLista',   d:poListaLabel, done:poListaDone},
-    {l:'Envío\nProv.',d:firstDate(rows,F.f_envio)},
-    {l:'ETA',         d:firstDate(rows,F.f_eta)},
-    {l:'Recolecta',   d:firstDate(rows,F.f_recolec)},
-    {l:'Arribo\nEP',  d:firstDate(rows,F.f_arribo)},
+/* ---------- Reportes ---------- */
+VIEWS.reportes = () => {
+  const critical = PRODUCTS.filter(p=>statusOf(p)!=="Disponible").length;
+  const idle = PRODUCTS.filter(p=>p.idle>90);
+  const topRot = [...PRODUCTS].sort((a,b)=>b.rot-a.rot).slice(0,6);
+  const reports = [
+    ["Indicadores generales del inventario","Valor, cobertura y exactitud por bodega","PDF","var(--primary)"],
+    ["Productos críticos","Artículos agotados, bajo stock y pendientes de ingreso","PDF","var(--bad)"],
+    ["Compras mensuales","Órdenes emitidas, recibidas y saldos por proveedor","Excel","var(--ok)"],
+    ["Consumos mensuales","Salidas por centro de costo y línea de producción","Excel","var(--steel)"],
+    ["Rotación del inventario","Índice de rotación y días de cobertura por artículo","PDF","var(--pend)"],
+    ["Inventario sin movimiento","Artículos sin consumo en los últimos 90 días","Excel","var(--warn)"]
   ];
-  const html=ms.map((m,i)=>{
-    const done = m.done !== undefined ? m.done : !!m.d;
-    const nd = i<ms.length-1 && (ms[i+1].done !== undefined ? ms[i+1].done : !!ms[i+1]?.d);
-    const label = m.d || (done ? '✓' : 'Pend.');
-    return '<div class="ts'+(done?' sok':'')+(done&&nd?' lok':'')+'"><div class="ts-dot'+(done?' pulse':'')+'"></div><div class="ts-lbl">'+m.l.replace(/\n/g,'<br>')+'</div><div class="ts-dt'+(done?'':' pend')+'">'+label+'</div></div>';
-  }).join('');
-  document.getElementById('traz-body').innerHTML='<div class="traz-wrap"><div class="traz-track">'+html+'</div></div>';
-  setTimeout(()=>document.querySelectorAll('.ts-dot.pulse').forEach(e=>e.classList.remove('pulse')),1500);
+  viewsEl.innerHTML = `<div class="view">
+    <div class="grid three" style="margin-bottom:16px">
+      ${kpi("Exactitud del inventario","97.4%","último conteo cíclico: 12 jul","up","var(--ok)","var(--ok-soft)",'<path d="M20 6L9 17l-5-5"/>')}
+      ${kpi("Rotación promedio","4.8×","anualizada sobre 50 artículos","up","var(--primary)","var(--primary-soft)",'<path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/>')}
+      ${kpi("Artículos sin movimiento", NUM(idle.length), "más de 90 días en bodega","down","var(--warn)","var(--warn-soft)",'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>')}
+    </div>
+    <div class="two" style="margin-bottom:16px">
+      <div class="card">
+        <div class="card-h"><h3>Generación de reportes</h3><span class="sub">salida simulada</span></div>
+        <div class="card-b" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          ${reports.map(r=>`
+            <div class="pcard" style="cursor:pointer" onclick="simulateExport('${r[2]}','${r[0].replace(/ /g,"_")}.${r[2]==="PDF"?"pdf":"xlsx"}')">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span class="pill" style="background:${r[3]}1a;color:${r[3]}">${r[2]}</span>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2" stroke-linecap="round"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 20h16"/></svg>
+              </div>
+              <h4>${r[0]}</h4><div class="meta" style="white-space:normal">${r[1]}</div>
+            </div>`).join("")}
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-h"><h3>Mayor rotación</h3><span class="sub">índice anualizado</span></div>
+        <div class="card-b">
+          ${topRot.map(p=>`<div style="margin-bottom:14px">
+            <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:5px">
+              <span>${p.desc}</span><b class="mono">${p.rot}×</b></div>
+            <div class="bar"><i style="width:${p.rot/9.4*100}%;background:linear-gradient(90deg,#8FC3E8,#2F6FD0)"></i></div>
+          </div>`).join("")}
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-h"><h3>Inventario sin movimiento (más de 90 días)</h3>
+        <div class="spacer"></div><span class="pill p-warn">${CRCk(idle.reduce((s,p)=>s+p.stock*p.cost,0))} inmovilizados</span></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Código</th><th>Descripción</th><th>Categoría</th><th>Días sin uso</th><th>Existencias</th><th>Valor detenido</th><th>Recomendación</th></tr></thead>
+        <tbody>${idle.sort((a,b)=>b.idle-a.idle).map(p=>`<tr>
+          <td><span class="code">${p.code}</span></td><td>${p.desc}</td><td style="color:var(--ink-2)">${p.cat}</td>
+          <td class="mono"><b>${p.idle}</b></td><td class="mono">${NUM(p.stock)}</td><td class="mono">${CRC(p.stock*p.cost)}</td>
+          <td><span class="pill p-mute">${p.idle>140?"Evaluar liquidación":"Revisar plan de consumo"}</span></td></tr>`).join("")}</tbody>
+      </table></div>
+    </div></div>`;
+};
+
+/* ---------- Configuración ---------- */
+VIEWS.config = () => {
+  const opts = [
+    ["Alertas de stock mínimo","Notificar cuando un artículo llegue a su punto de reorden",true],
+    ["Sugerencias automáticas de compra","La IA propone órdenes según consumo histórico",true],
+    ["Aprobación de movimientos","Los ajustes requieren visto bueno de jefatura",true],
+    ["Conteo cíclico programado","Genera listas de conteo cada 15 días",false],
+    ["Trazabilidad por lote","Registrar lote y vencimiento en materia prima",true],
+    ["Modo demostración","Datos simulados y procesos no destructivos",true]
+  ];
+  viewsEl.innerHTML = `<div class="view"><div class="two">
+    <div class="card"><div class="card-h"><h3>Preferencias del sistema</h3></div><div class="card-b">
+      ${opts.map((o,i)=>`<div style="display:flex;gap:14px;align-items:center;padding:13px 0;border-bottom:1px dashed var(--line-soft)">
+        <div style="flex:1"><div style="font-weight:600;font-size:13px">${o[0]}</div>
+          <div style="font-size:11.5px;color:var(--muted)">${o[1]}</div></div>
+        <div class="switch ${o[2]?"on":""}" onclick="this.classList.toggle('on');toast('Preferencia actualizada','${o[0]}')"></div></div>`).join("")}
+    </div></div>
+    <div class="card"><div class="card-h"><h3>Datos de la empresa</h3></div><div class="card-b">
+      <div class="kv"><span>Razón social</span><b>Plásticos del Valle S.A.</b></div>
+      <div class="kv"><span>Cédula jurídica</span><b class="mono">3-101-482913</b></div>
+      <div class="kv"><span>Actividad</span><b>Fabricación de productos plásticos</b></div>
+      <div class="kv"><span>Planta</span><b>Cartago, Costa Rica</b></div>
+      <div class="kv"><span>Bodegas activas</span><b>7</b></div>
+      <div class="kv"><span>Moneda</span><b>Colón costarricense (CRC)</b></div>
+      <div class="kv"><span>Versión</span><b>SmartStock CR 0.9.4 Beta</b></div>
+      <div class="env-chip" style="margin-top:16px"><span class="dot"></span>
+        <div>Entorno académico. Las acciones no afectan sistemas reales ni generan documentos fiscales.</div></div>
+    </div></div>
+  </div></div>`;
+};
+
+/* ---------- Perfil ---------- */
+VIEWS.perfil = () => {
+  const mine = MOVES.filter(m=>m.who==="María F. Rojas").slice(0,6);
+  viewsEl.innerHTML = `<div class="view"><div class="two">
+    <div class="card"><div class="card-b" style="text-align:center;padding:34px">
+      <div class="avatar" style="width:74px;height:74px;font-size:24px;margin:0 auto 14px">MR</div>
+      <div class="hero-num" style="font-size:19px;letter-spacing:-.4px">María Fernanda Rojas</div>
+      <div style="color:var(--muted);font-size:12.5px;margin-top:3px">Jefa de Bodega · Plásticos del Valle S.A.</div>
+      <div style="margin-top:14px"><span class="pill p-info">Administrador de inventario</span></div>
+      <div style="margin-top:24px;text-align:left">
+        <div class="kv"><span>Correo</span><b>mrojas@plasticosdelvalle.cr</b></div>
+        <div class="kv"><span>Extensión</span><b class="mono">2104</b></div>
+        <div class="kv"><span>Bodegas asignadas</span><b>A, B, D, F</b></div>
+        <div class="kv"><span>Último ingreso</span><b>Hoy · ${ftime(new Date())}</b></div>
+        <div class="kv"><span>Movimientos aprobados</span><b>${MOVES.filter(m=>m.appr==="Aprobado").length}</b></div>
+      </div>
+    </div></div>
+    <div class="card"><div class="card-h"><h3>Mi actividad</h3><span class="sub">movimientos registrados</span></div>
+      <div class="card-b"><div class="tl">${mine.length?mine.map(tlItem).join(""):'<div class="empty"><b>Sin actividad reciente</b>Registra un movimiento para verlo aquí.</div>'}</div></div>
+    </div>
+  </div></div>`;
+};
+
+/* =========================================================
+   IASHA — Asistente inteligente de inventario
+   ========================================================= */
+let asOpen = false;
+const SUGGESTIONS = [
+  "¿Cuáles productos tienen bajo inventario?",
+  "¿Qué artículos deben comprarse esta semana?",
+  "¿Cuál es el valor total del inventario?",
+  "¿Qué proveedor tiene más órdenes pendientes?",
+  "¿Cuáles productos no se han utilizado en los últimos 90 días?",
+  "Muéstrame las órdenes de compra abiertas.",
+  "¿Cuál producto tiene mayor rotación?",
+  "¿Qué materiales están próximos a agotarse?"
+];
+
+function openAssistant(){
+  if(asOpen) return;
+  asOpen = true;
+  document.getElementById("fab").style.display="none";
+  const el = document.createElement("div");
+  el.className="assistant"; el.id="assistant";
+  el.innerHTML = `
+    <div class="as-h">
+      <div class="av"><svg viewBox="0 0 24 24"><path d="M12 2l1.9 5.6L19.5 9.5 13.9 11.4 12 17l-1.9-5.6L4.5 9.5l5.6-1.9L12 2z"/></svg></div>
+      <div><b>IASHA</b><span><span class="dot"></span>Conectado al inventario · 50 artículos</span></div>
+      <div class="spacer"></div>
+      <button class="icon-btn" id="asClose" aria-label="Cerrar asistente">
+        <svg viewBox="0 0 24 24"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg></button>
+    </div>
+    <div class="as-body" id="asBody"></div>
+    <div class="chips" id="asChips">${SUGGESTIONS.slice(0,4).map(s=>`<button class="chip">${s}</button>`).join("")}</div>
+    <div class="as-in">
+      <input id="asInput" placeholder="Pregunta sobre tu inventario…" autocomplete="off">
+      <button id="asSend" aria-label="Enviar"><svg viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg></button>
+    </div>`;
+  document.body.appendChild(el);
+  document.getElementById("asClose").onclick = closeAssistant;
+  document.getElementById("asSend").onclick = sendAs;
+  document.getElementById("asInput").onkeydown = e=>{if(e.key==="Enter")sendAs()};
+  el.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{document.getElementById("asInput").value=c.textContent;sendAs()});
+  bot(`Hola María Fernanda, soy <b>IASHA</b>. Estoy revisando el inventario de <b>Plásticos del Valle S.A.</b> en tiempo real.<br><br>Hoy hay <b>${M.low} artículos bajo stock</b>, <b>${M.out} agotados</b> y <b>${M.openPO} órdenes por recibir</b>. ¿Qué quieres consultar?`);
+  setTimeout(()=>document.getElementById("asInput").focus(),300);
+}
+function closeAssistant(){
+  asOpen=false;
+  document.getElementById("assistant")?.remove();
+  document.getElementById("fab").style.display="";
+}
+document.getElementById("fab").onclick = openAssistant;
+
+function bubble(html, who){
+  const b = document.getElementById("asBody");
+  const d = document.createElement("div");
+  d.className = "msg "+who; d.innerHTML = html;
+  b.appendChild(d); b.scrollTop = b.scrollHeight;
+  return d;
+}
+const bot = h => bubble(h,"bot");
+function typing(){
+  const b=document.getElementById("asBody");
+  const d=document.createElement("div"); d.className="typing"; d.innerHTML="<i></i><i></i><i></i>";
+  b.appendChild(d); b.scrollTop=b.scrollHeight; return d;
+}
+function sendAs(){
+  const inp = document.getElementById("asInput");
+  const q = inp.value.trim(); if(!q) return;
+  bubble(q,"me"); inp.value="";
+  const t = typing();
+  setTimeout(()=>{
+    t.remove();
+    bot(answer(q));
+    rotateChips();
+  }, 700 + Math.random()*600);
+}
+function rotateChips(){
+  const c = document.getElementById("asChips");
+  const pick = [...SUGGESTIONS].sort(()=>Math.random()-.5).slice(0,4);
+  c.innerHTML = pick.map(s=>`<button class="chip">${s}</button>`).join("");
+  c.querySelectorAll(".chip").forEach(b=>b.onclick=()=>{document.getElementById("asInput").value=b.textContent;sendAs()});
 }
 
-function handleDrop(e){e.preventDefault();document.getElementById('filedrop').classList.remove('over');const f=e.dataTransfer?.files[0];if(f)handleFile(f);}
-function handleFile(file){if(!file)return;const r=new FileReader();r.onload=e=>{try{const d=JSON.parse(e.target.result);processData(Array.isArray(d)?d:[],'file');}catch(err){alert('Error al leer el archivo: '+err.message);}};r.readAsText(file);}
+function card(title, right, sub, cls=""){
+  return `<div class="smart-card ${cls}"><div class="sc-t"><span>${title}</span><span class="mono">${right}</span></div><div class="sc-s">${sub}</div></div>`;
+}
 
-document.addEventListener('click',e=>{if(!e.target.closest('#dd-sol')&&DD.sol.open)closeDD('sol');if(!e.target.closest('#dd-oc')&&DD.oc.open)closeDD('oc');});
+function answer(qRaw){
+  const q = qRaw.toLowerCase();
+  const has = (...ks)=>ks.some(k=>q.includes(k));
 
-// Boot: load embedded data immediately, then try SharePoint
-processData(EMBEDDED,'embedded');
-tryFetch();
+  if(has("bajo inventario","bajo stock","poco inventario","escasez")){
+    const list = PRODUCTS.filter(p=>statusOf(p)==="Bajo Stock").sort((a,b)=>a.stock/a.min - b.stock/b.min).slice(0,6);
+    return `Encontré <b>${M.low} artículos por debajo del stock mínimo</b>. Estos son los más urgentes:`
+      + list.map(p=>card(p.desc, NUM(p.stock)+" u.",
+        `Mínimo ${NUM(p.min)} · ${Math.round(p.stock/p.min*100)}% del mínimo · ${p.loc} · ${p.sup.name}`,"sc-warn")).join("")
+      + `<div style="margin-top:10px;font-size:12px;color:var(--muted)">Sugerencia: consolidar la reposición en una sola orden a ${list[0].sup.name} reduce el costo de flete.</div>`;
+  }
+  if(has("comprarse","comprar esta semana","reponer","reorden","qué comprar")){
+    const list = PRODUCTS.filter(p=>statusOf(p)!=="Disponible" && !PENDING.has(p.code))
+      .sort((a,b)=>(a.stock/(a.min||1))-(b.stock/(b.min||1))).slice(0,5);
+    const est = list.reduce((s,p)=>s+(p.max-p.stock)*p.cost,0);
+    return `Recomiendo emitir <b>${list.length} líneas de compra</b> esta semana por un estimado de <b>${CRC(est)}</b>:`
+      + list.map(p=>card(p.desc, NUM(p.max-p.stock)+" u.",
+        `Reponer hasta el máximo · ${CRC((p.max-p.stock)*p.cost)} · entrega ${p.sup.lead} días con ${p.sup.name}`,"sc-warn")).join("")
+      + `<div style="margin-top:10px;font-size:12px;color:var(--muted)">Se recomienda realizar la compra del producto <b>Tornillo Hexagonal 1/2"</b> debido a que su inventario se encuentra al 15% del stock mínimo establecido.</div>`;
+  }
+  if(has("valor total","cuánto vale","valor del inventario","capital")){
+    const byCat = {}; PRODUCTS.forEach(p=>byCat[p.cat]=(byCat[p.cat]||0)+p.stock*p.cost);
+    const top = Object.entries(byCat).sort((a,b)=>b[1]-a[1]).slice(0,3);
+    return `El inventario valorizado al costo asciende a <b>${CRC(M.value)}</b> distribuidos en ${M.total} artículos y 7 bodegas.`
+      + top.map(([k,v])=>card(k, CRCk(v), `${Math.round(v/M.value*100)}% del valor total`,"sc-ok")).join("")
+      + `<div style="margin-top:10px;font-size:12px;color:var(--muted)">La materia prima concentra la mayor parte del capital inmovilizado; una reducción de 10% en resinas liberaría cerca de ${CRCk(byCat["Materia Prima"]*0.1)}.</div>`;
+  }
+  if(has("proveedor") && has("pendiente","órdenes","ordenes","más")){
+    const rank = SUPPLIERS.map(s=>({s, open:POS.filter(o=>o.sup.id===s.id && o.status!=="Cerrada"),
+      amt:POS.filter(o=>o.sup.id===s.id && o.status!=="Cerrada").reduce((a,o)=>a+o.pending,0)}))
+      .sort((a,b)=>b.open.length-a.open.length || b.amt-a.amt).slice(0,3);
+    return `<b>${rank[0].s.name}</b> concentra la mayor cantidad de órdenes sin cerrar.`
+      + rank.map(r=>card(r.s.name, r.open.length+" OC", `Saldo pendiente ${CRC(r.amt)} · plazo de entrega ${r.s.lead} días · ${r.s.zone}`, r===rank[0]?"sc-warn":"")).join("");
+  }
+  if(has("90 día","90 dias","sin uso","no se han utilizado","sin movimiento","obsoleto")){
+    const idle = PRODUCTS.filter(p=>p.idle>90).sort((a,b)=>b.idle-a.idle);
+    const val = idle.reduce((s,p)=>s+p.stock*p.cost,0);
+    return `Hay <b>${idle.length} artículos sin consumo en los últimos 90 días</b>, con <b>${CRC(val)}</b> inmovilizados:`
+      + idle.map(p=>card(p.desc, p.idle+" días", `${NUM(p.stock)} u. · ${CRC(p.stock*p.cost)} detenidos · ${p.loc}`,"sc-bad")).join("");
+  }
+  if(has("órdenes de compra abiertas","ordenes de compra abiertas","oc abiertas","órdenes abiertas","ordenes abiertas","muéstrame las órdenes")){
+    const open = POS.filter(o=>o.status!=="Cerrada").slice(0,6);
+    return `Tienes <b>${M.openPO} órdenes de compra sin cerrar</b> por <b>${CRC(M.pendingAmount)}</b>:`
+      + open.map(o=>card(o.id+" · "+o.sup.name, CRC(o.total),
+        `${o.status} · emitida ${fdate(o.date)} · llegada estimada ${fdate(o.eta)} · saldo ${CRC(o.pending)}`, o.status==="Recepción parcial"?"sc-warn":"")).join("");
+  }
+  if(has("rotación","rotacion","más se mueve","mayor movimiento")){
+    const top = [...PRODUCTS].sort((a,b)=>b.rot-a.rot).slice(0,4);
+    return `El artículo con mayor rotación es <b>${top[0].desc}</b>, con un índice de <b>${top[0].rot}×</b> anualizado.`
+      + top.map(p=>card(p.desc, p.rot+"×", `${Math.round(365/p.rot)} días de cobertura promedio · ${p.cat}`,"sc-ok")).join("");
+  }
+  if(has("próximos a agotarse","proximos a agotarse","por agotarse","agotad","sin existencias","críticos","criticos")){
+    const outp = PRODUCTS.filter(p=>p.stock===0);
+    const near = PRODUCTS.filter(p=>p.stock>0 && p.stock<=p.min*0.6).sort((a,b)=>a.stock/a.min-b.stock/b.min).slice(0,4);
+    return `Detecté <b>${outp.length} artículos agotados</b> y <b>${near.length} próximos a agotarse</b> (por debajo del 60% del mínimo):`
+      + outp.map(p=>card(p.desc,"0 u.",`Agotado · ${PENDING.has(p.code)?"OC en tránsito":"sin orden emitida"} · ${p.sup.name}`,"sc-bad")).join("")
+      + near.map(p=>card(p.desc,NUM(p.stock)+" u.",`${Math.round(p.stock/p.min*100)}% del mínimo · consumo estimado ${Math.max(1,Math.round(p.stock/(p.rot||1)))} días`,"sc-warn")).join("");
+  }
+  if(has("hola","buenos","buenas","ayuda","qué puedes","que puedes")){
+    return `Puedo consultar existencias, sugerir compras, revisar órdenes y detectar inventario detenido.<br><br>Prueba con: <i>"¿qué materiales están próximos a agotarse?"</i> o <i>"¿cuál producto tiene mayor rotación?"</i>`;
+  }
+  // búsqueda por producto
+  const found = PRODUCTS.find(p=>q.includes(p.desc.toLowerCase().split(" ")[0]) && p.desc.toLowerCase().split(" ")[0].length>4);
+  if(found){
+    const st = statusOf(found);
+    const mv = MOVES.filter(m=>m.product.code===found.code).length;
+    return `Esto es lo que tengo de <b>${found.desc}</b>:`
+      + card(st, NUM(found.stock)+" u.", `Mín ${NUM(found.min)} · máx ${NUM(found.max)} · ${found.loc} · costo ${CRC(found.cost)}`, st==="Disponible"?"sc-ok":"sc-warn")
+      + card("Abastecimiento", found.sup.lead+" días", `${found.sup.name} · rotación ${found.rot}× · ${mv} movimientos registrados`);
+  }
+  return `No encontré datos exactos para esa consulta en el entorno de demostración. Puedo responder sobre existencias, compras sugeridas, órdenes abiertas, rotación e inventario sin movimiento.<br><br>Toca una de las sugerencias para ver un ejemplo.`;
+}
+
+/* =========================================================
+   Simulaciones (toasts, exportación, movimientos en vivo)
+   ========================================================= */
+function toast(title, sub){
+  const t = document.createElement("div");
+  t.className="toast"; t.innerHTML=`<b>${title}</b><span>${sub}</span>`;
+  document.getElementById("toasts").appendChild(t);
+  setTimeout(()=>{t.style.transition="opacity .3s,transform .3s";t.style.opacity=0;t.style.transform="translateX(20px)";
+    setTimeout(()=>t.remove(),320)},4200);
+}
+
+function simulateExport(kind, filename){
+  const t = document.createElement("div");
+  t.className="toast";
+  t.innerHTML = `<b>Generando ${kind}</b><span>${filename}</span><div class="prog"><i></i></div>`;
+  document.getElementById("toasts").appendChild(t);
+  const bar = t.querySelector("i");
+  let p=0;
+  const iv = setInterval(()=>{
+    p += 12 + Math.random()*22;
+    bar.style.width = Math.min(p,100)+"%";
+    if(p>=100){
+      clearInterval(iv);
+      t.querySelector("b").textContent = kind+" listo";
+      t.querySelector("span").innerHTML = `${filename} · <span style="color:var(--muted)">descarga simulada en el entorno beta</span>`;
+      setTimeout(()=>{t.style.opacity=0;t.style.transition="opacity .3s";setTimeout(()=>t.remove(),320)},3400);
+    }
+  },260);
+}
+
+function simulateMovement(manual){
+  const p = PRODUCTS[Math.floor(Math.random()*PRODUCTS.length)];
+  const isIn = Math.random()>0.5;
+  const r = isIn ? IN_REASONS[Math.floor(Math.random()*3)] : OUT_REASONS[Math.floor(Math.random()*4)];
+  const qty = Math.max(1, Math.round(p.max/20 * (0.4+Math.random())));
+  const mv = {id:"MV-"+String(4821+MOVES.length-30).padStart(4,"0"), date:new Date(), product:p, qty,
+    type:r[1], reason:r[0], who:manual?"María F. Rojas":PEOPLE[Math.floor(Math.random()*PEOPLE.length)],
+    appr: manual ? "Aprobado" : (Math.random()>.8?"Pendiente":"Aprobado")};
+  MOVES.unshift(mv);
+  if(mv.appr==="Aprobado") p.stock = Math.max(0, p.stock + (isIn?qty:-qty));
+  toast(`${mv.type} registrada · ${p.desc}`, `${isIn?"+":"−"}${qty} u. · ${mv.reason} · ${mv.who}`);
+  refreshLive();
+}
+
+function refreshLive(){
+  if(current==="dashboard"){
+    document.querySelectorAll(".kpi .val")[0].textContent = CRCk(M.value);
+    document.querySelectorAll(".kpi .val")[2].textContent = NUM(M.low);
+    document.querySelectorAll(".kpi .val")[3].textContent = NUM(M.out);
+    document.querySelectorAll(".kpi .val")[4].textContent = NUM(M.today);
+    const tl = document.getElementById("tl");
+    if(tl) tl.innerHTML = MOVES.slice(0,6).map(tlItem).join("");
+  }
+  if(current==="movimientos") paintMv();
+  if(current==="inventario") paintInv();
+  renderNav();
+}
+
+/* reloj + simulación en vivo */
+setInterval(()=>{
+  document.getElementById("clock").textContent = new Date().toLocaleTimeString("es-CR",{hour12:false});
+},1000);
+setInterval(()=>{ if(!document.hidden) simulateMovement(false); }, 16000);
+
+/* búsqueda global */
+document.getElementById("globalSearch").onkeydown = e=>{
+  if(e.key!=="Enter") return;
+  const v=e.target.value.trim(); if(!v) return;
+  invState.q=v; invState.mode="tabla"; go("inventario"); e.target.value="";
+};
+document.getElementById("bellBtn").onclick = ()=>{
+  toast("Alertas activas", `${M.out} artículos agotados · ${M.low} bajo el mínimo · ${M.openPO} órdenes por recibir`);
+};
+function bindJumps(){
+  document.querySelectorAll("[data-nav-jump]").forEach(b=>b.onclick=()=>go(b.dataset.navJump));
+}
+
+/* arranque */
+renderNav();
+go("dashboard");
+setTimeout(()=>toast("Bienvenida, María Fernanda","SmartStock CR sincronizó 50 artículos y 15 órdenes de compra."),900);
 </script>
 </body>
 </html>
